@@ -17,12 +17,21 @@ public class TransactionService {
     private final ConfigurationRepository configurationRepository;
 
     public Transaction transact(Transaction transaction) {
+
+        validateBankCode(transaction);
         validateTransactionAmount(transaction);
         validateTransactionIsNotDuplicated(transaction);
         validatePreviousTransactionExists(transaction);
         validateCreditorAndDebtor(transaction);
 
         return transactionRepository.save(transaction);
+    }
+
+    private void validateBankCode(Transaction transaction) {
+        if (!transaction.getBankCode().equals(transaction.getSenderAccount().getBankCode())) {
+            throw new IllegalArgumentException(
+                    "The transaction bank code differs from the bank code of the sender account");
+        }
     }
 
     private void validateTransactionAmount(Transaction transaction) {
@@ -37,8 +46,8 @@ public class TransactionService {
     }
 
     private void validateTransactionIsNotDuplicated(Transaction transaction) {
-        Transaction searchResult = transactionRepository
-                .findByTransactionReference(transaction.getTransactionReference());
+        Transaction searchResult = transactionRepository.findByTransactionReferenceAndBankCode(
+                transaction.getTransactionReference(), transaction.getBankCode());
 
         if (searchResult != null) {
             throw new IllegalArgumentException(
@@ -50,8 +59,8 @@ public class TransactionService {
 
         if (transaction.getPreviousTransactionReference() != null
                 && !transaction.getPreviousTransactionReference().isEmpty()) {
-            Transaction searchResult = transactionRepository
-                    .findByTransactionReference(transaction.getPreviousTransactionReference());
+            Transaction searchResult = transactionRepository.findByTransactionReferenceAndBankCode(
+                    transaction.getPreviousTransactionReference(), transaction.getReceiverAccount().getBankCode());
 
             if (searchResult == null) {
                 throw new IllegalArgumentException("The previous transaction with the given reference was not found:  "

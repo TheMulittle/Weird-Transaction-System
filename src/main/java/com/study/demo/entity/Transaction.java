@@ -34,4 +34,7 @@ public class Transaction {
     @Embedded
     @NotEmpty
     private Account receiverAccount;
+
+    // This will pertain to the DTO only
+    private String bankCode;
 }

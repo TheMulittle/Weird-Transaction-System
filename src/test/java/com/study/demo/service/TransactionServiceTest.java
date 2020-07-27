@@ -31,13 +31,14 @@ public class TransactionServiceTest {
 
     @BeforeEach
     public void setup() {
-        when(configurationRepo.findByName("MAX_AMOUNT")).thenReturn("500");
+        lenient().when(configurationRepo.findByName("MAX_AMOUNT")).thenReturn("500");
     }
 
     @Test
     public void shouldSaveTheTransaction_whenTransactionIsSuccessful() {
         Transaction transaction = TransactionFixtures.simpleTransaction();
-        when(transactionRepo.findByTransactionReference(transaction.getTransactionReference())).thenReturn(null);
+        when(transactionRepo.findByTransactionReferenceAndBankCode(transaction.getTransactionReference(),
+                transaction.getBankCode())).thenReturn(null);
         transactionService.transact(transaction);
         verify(transactionRepo).save(transaction);
     }
@@ -47,7 +48,6 @@ public class TransactionServiceTest {
         Transaction transaction = TransactionFixtures.transactionWithAmountHigherThanLimit();
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             transactionService.transact(transaction);
-            ;
         });
     }
 
@@ -56,18 +56,16 @@ public class TransactionServiceTest {
         Transaction transaction = TransactionFixtures.transactionWithAmountZero();
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             transactionService.transact(transaction);
-            ;
         });
     }
 
-    // TODO include the bank variable here so the reference is per bank
     @Test
     public void shouldReturnException_whenTransactionReferenceAlreadyExistsForTheGivenBank() {
         Transaction transaction = TransactionFixtures.simpleTransaction();
-        when(transactionRepo.findByTransactionReference(transaction.getTransactionReference())).thenReturn(transaction);
+        when(transactionRepo.findByTransactionReferenceAndBankCode(transaction.getTransactionReference(),
+                transaction.getBankCode())).thenReturn(transaction);
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             transactionService.transact(transaction);
-            ;
         });
     }
 
@@ -75,14 +73,15 @@ public class TransactionServiceTest {
     public void shouldReturnException_whenPreviousTransactionReferenceHasATransactionThatDoesNotExist() {
         Transaction transaction = TransactionFixtures.transactionWithReferenceToPrevious();
 
-        lenient().when(transactionRepo.findByTransactionReference(transaction.getTransactionReference()))
-                .thenReturn(null);
-        lenient().when(transactionRepo.findByTransactionReference(transaction.getPreviousTransactionReference()))
+        lenient().when(transactionRepo.findByTransactionReferenceAndBankCode(transaction.getTransactionReference(),
+                transaction.getBankCode())).thenReturn(null);
+        lenient()
+                .when(transactionRepo.findByTransactionReferenceAndBankCode(
+                        transaction.getPreviousTransactionReference(), transaction.getReceiverAccount().getBankCode()))
                 .thenReturn(null);
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             transactionService.transact(transaction);
-            ;
         });
     }
 
@@ -92,7 +91,15 @@ public class TransactionServiceTest {
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             transactionService.transact(transaction);
-            ;
+        });
+    }
+
+    @Test
+    public void shouldReturnException_whenBankCodeOfTransactionDiffersFromBankCodeOfTheSenderAccount() {
+        Transaction transaction = TransactionFixtures.transactionWhoseBankCodeDiffersFromBankCodeOfSenderAccount();
+
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            transactionService.transact(transaction);
         });
     }
 
