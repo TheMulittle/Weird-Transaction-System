@@ -6,11 +6,12 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.validation.constraints.NotEmpty;
 
-import com.study.demo.model.User;
-
+import lombok.Builder;
 import lombok.Data;
 
+//TODO disjoint what is DAO and what is DTO
 @Data
+@Builder
 @Entity
 public class Transaction {
 
@@ -19,7 +20,7 @@ public class Transaction {
     private Long id;
 
     @NotEmpty
-    private double amount;
+    private long amount;
 
     @NotEmpty
     private String transactionReference;
@@ -28,9 +29,9 @@ public class Transaction {
 
     @Embedded
     @NotEmpty
-    private User creditorAccount;
+    private Account senderAccount;
 
     @Embedded
     @NotEmpty
-    private User debtorAccount;
+    private Account receiverAccount;
 }
