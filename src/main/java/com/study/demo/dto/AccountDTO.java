@@ -1,4 +1,4 @@
-package com.study.demo.entity;
+package com.study.demo.dto;
 
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotEmpty;
@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 @Builder
 @Embeddable
-public class Account {
+public class AccountDTO {
 
     @NotEmpty
     String ownerFirstName;

@@ -8,5 +8,5 @@ import org.springframework.data.repository.CrudRepository;
 
 @Transactional
 public interface TransactionRepository extends CrudRepository<Transaction, Long> {
-    public Transaction findByTransactionReferenceAndBankCode(String transactionReference, String bankCode);
+    public Transaction findByTransactionReferenceAndSenderBankCode(String transactionReference, String bankCode);
 }

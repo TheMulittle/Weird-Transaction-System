@@ -1,9 +1,11 @@
 package com.study.demo.service;
 
+import com.study.demo.dto.TransactionDTO;
 import com.study.demo.entity.Transaction;
 import com.study.demo.repository.ConfigurationRepository;
 import com.study.demo.repository.TransactionRepository;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -13,10 +15,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TransactionService {
 
+    ModelMapper modelMapper = new ModelMapper();
+
     private final TransactionRepository transactionRepository;
     private final ConfigurationRepository configurationRepository;
 
-    public Transaction transact(Transaction transaction) {
+    public Transaction transact(TransactionDTO transaction) {
 
         validateBankCode(transaction);
         validateTransactionAmount(transaction);
@@ -24,17 +28,19 @@ public class TransactionService {
         validatePreviousTransactionExists(transaction);
         validateCreditorAndDebtor(transaction);
 
-        return transactionRepository.save(transaction);
+        Transaction transactionToPersist = modelMapper.map(transaction, Transaction.class);
+
+        return transactionRepository.save(transactionToPersist);
     }
 
-    private void validateBankCode(Transaction transaction) {
+    private void validateBankCode(TransactionDTO transaction) {
         if (!transaction.getBankCode().equals(transaction.getSenderAccount().getBankCode())) {
             throw new IllegalArgumentException(
                     "The transaction bank code differs from the bank code of the sender account");
         }
     }
 
-    private void validateTransactionAmount(Transaction transaction) {
+    private void validateTransactionAmount(TransactionDTO transaction) {
 
         Long maxAmount = Long.valueOf(configurationRepository.findByName("MAX_AMOUNT"));
 
@@ -45,8 +51,8 @@ public class TransactionService {
         }
     }
 
-    private void validateTransactionIsNotDuplicated(Transaction transaction) {
-        Transaction searchResult = transactionRepository.findByTransactionReferenceAndBankCode(
+    private void validateTransactionIsNotDuplicated(TransactionDTO transaction) {
+        Transaction searchResult = transactionRepository.findByTransactionReferenceAndSenderBankCode(
                 transaction.getTransactionReference(), transaction.getBankCode());
 
         if (searchResult != null) {
@@ -55,11 +61,11 @@ public class TransactionService {
         }
     }
 
-    private void validatePreviousTransactionExists(Transaction transaction) {
+    private void validatePreviousTransactionExists(TransactionDTO transaction) {
 
         if (transaction.getPreviousTransactionReference() != null
                 && !transaction.getPreviousTransactionReference().isEmpty()) {
-            Transaction searchResult = transactionRepository.findByTransactionReferenceAndBankCode(
+            Transaction searchResult = transactionRepository.findByTransactionReferenceAndSenderBankCode(
                     transaction.getPreviousTransactionReference(), transaction.getReceiverAccount().getBankCode());
 
             if (searchResult == null) {
@@ -69,7 +75,7 @@ public class TransactionService {
         }
     }
 
-    private void validateCreditorAndDebtor(Transaction transaction) {
+    private void validateCreditorAndDebtor(TransactionDTO transaction) {
         if (transaction.getSenderAccount().getBankCode().equals(transaction.getReceiverAccount().getBankCode())) {
             throw new IllegalArgumentException("Both creditor and debtor accounts pertain to the same bank");
         }

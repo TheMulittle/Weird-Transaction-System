@@ -19,6 +19,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'com.h2database:h2'
     implementation 'javax.validation:validation-api'
+    implementation 'org.modelmapper:modelmapper:2.3.8'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}

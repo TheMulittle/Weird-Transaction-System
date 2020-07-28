@@ -1,40 +1,62 @@
 package com.study.demo.entity;
 
-import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.validation.constraints.NotEmpty;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-//TODO disjoint what is DAO and what is DTO
 @Data
 @Builder
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@IdClass(TransactionId.class)
 public class Transaction {
-
-    @Id
-    @GeneratedValue
-    private Long id;
 
     @NotEmpty
     private long amount;
 
+    @Id
     @NotEmpty
     private String transactionReference;
 
     private String previousTransactionReference;
 
-    @Embedded
     @NotEmpty
-    private Account senderAccount;
+    private String receiverFirstName;
 
-    @Embedded
     @NotEmpty
-    private Account receiverAccount;
+    private String receiverLastName;
 
-    // This will pertain to the DTO only
-    private String bankCode;
+    @NotEmpty
+    private String receiverDocumentNumber;
+
+    @NotEmpty
+    private String receiverAccountNumber;
+
+    @Id
+    @NotEmpty
+    private String receiverBankCode;
+
+    @NotEmpty
+    private String senderFirstName;
+
+    @NotEmpty
+    private String senderLastName;
+
+    @NotEmpty
+    private String senderDocumentNumber;
+
+    @NotEmpty
+    private String senderAccountNumber;
+
+    @NotEmpty
+    private String senderBankCode;
+
 }
