@@ -2,6 +2,11 @@ package com.study.demo.service;
 
 import com.study.demo.dto.TransactionDTO;
 import com.study.demo.entity.Transaction;
+import com.study.demo.exception.AmountGreaterThanMaximumException;
+import com.study.demo.exception.DuplicatedTransactionException;
+import com.study.demo.exception.SameBankException;
+import com.study.demo.exception.TransactionNotFoundException;
+import com.study.demo.exception.ZeroAmountException;
 import com.study.demo.repository.ConfigurationRepository;
 import com.study.demo.repository.TransactionRepository;
 
@@ -45,9 +50,9 @@ public class TransactionService {
         Long maxAmount = Long.valueOf(configurationRepository.findByName("MAX_AMOUNT"));
 
         if (transaction.getAmount() == 0L) {
-            throw new IllegalArgumentException("The transaction amount cannot be zero");
+            throw new ZeroAmountException();
         } else if (transaction.getAmount() > maxAmount) {
-            throw new IllegalArgumentException("The transaction amount cannot be bigger than " + maxAmount);
+            throw new AmountGreaterThanMaximumException(transaction.getAmount(), maxAmount);
         }
     }
 
@@ -56,8 +61,7 @@ public class TransactionService {
                 transaction.getTransactionReference(), transaction.getBankCode());
 
         if (searchResult != null) {
-            throw new IllegalArgumentException(
-                    "A transaction with reference " + transaction.getTransactionReference() + " already exists");
+            throw new DuplicatedTransactionException(transaction.getTransactionReference(), transaction.getBankCode());
         }
     }
 
@@ -69,15 +73,15 @@ public class TransactionService {
                     transaction.getPreviousTransactionReference(), transaction.getReceiverAccount().getBankCode());
 
             if (searchResult == null) {
-                throw new IllegalArgumentException("The previous transaction with the given reference was not found:  "
-                        + transaction.getPreviousTransactionReference());
+                throw new TransactionNotFoundException(transaction.getPreviousTransactionReference(),
+                        transaction.getReceiverAccount().getBankCode());
             }
         }
     }
 
     private void validateCreditorAndDebtor(TransactionDTO transaction) {
         if (transaction.getSenderAccount().getBankCode().equals(transaction.getReceiverAccount().getBankCode())) {
-            throw new IllegalArgumentException("Both creditor and debtor accounts pertain to the same bank");
+            throw new SameBankException(transaction.getReceiverAccount().getBankCode());
         }
     }
 

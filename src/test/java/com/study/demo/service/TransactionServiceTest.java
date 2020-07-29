@@ -7,6 +7,11 @@ import static org.mockito.Mockito.when;
 
 import com.study.demo.dto.TransactionDTO;
 import com.study.demo.entity.Transaction;
+import com.study.demo.exception.AmountGreaterThanMaximumException;
+import com.study.demo.exception.DuplicatedTransactionException;
+import com.study.demo.exception.SameBankException;
+import com.study.demo.exception.TransactionNotFoundException;
+import com.study.demo.exception.ZeroAmountException;
 import com.study.demo.fixtures.transaction.TransactionDTOFixtures;
 import com.study.demo.fixtures.transaction.TransactionFixtures;
 import com.study.demo.repository.ConfigurationRepository;
@@ -49,7 +54,7 @@ public class TransactionServiceTest {
     @Test
     public void shouldReturnException_whenTransactionAmountIsHigherThanLimit() {
         TransactionDTO transaction = TransactionDTOFixtures.transactionWithAmountHigherThanLimit();
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        Assertions.assertThrows(AmountGreaterThanMaximumException.class, () -> {
             transactionService.transact(transaction);
         });
     }
@@ -57,7 +62,7 @@ public class TransactionServiceTest {
     @Test
     public void shouldReturnException_whenTransactionAmountIsZero() {
         TransactionDTO transaction = TransactionDTOFixtures.transactionWithAmountZero();
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        Assertions.assertThrows(ZeroAmountException.class, () -> {
             transactionService.transact(transaction);
         });
     }
@@ -68,7 +73,7 @@ public class TransactionServiceTest {
         Transaction transactionEntity = TransactionFixtures.simpleTransaction();
         when(transactionRepo.findByTransactionReferenceAndSenderBankCode(transactionDTO.getTransactionReference(),
                 transactionDTO.getBankCode())).thenReturn(transactionEntity);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        Assertions.assertThrows(DuplicatedTransactionException.class, () -> {
             transactionService.transact(transactionDTO);
         });
     }
@@ -86,7 +91,7 @@ public class TransactionServiceTest {
                         transaction.getPreviousTransactionReference(), transaction.getReceiverAccount().getBankCode()))
                 .thenReturn(null);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        Assertions.assertThrows(TransactionNotFoundException.class, () -> {
             transactionService.transact(transaction);
         });
     }
@@ -95,7 +100,7 @@ public class TransactionServiceTest {
     public void shouldReturnException_whenTransactionIsFromAccountsOfTheSameBank() {
         TransactionDTO transaction = TransactionDTOFixtures.transactionWithAccountsFromTheSameBank();
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+        Assertions.assertThrows(SameBankException.class, () -> {
             transactionService.transact(transaction);
         });
     }
