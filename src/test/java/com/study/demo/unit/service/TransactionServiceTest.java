@@ -1,4 +1,4 @@
-package com.study.demo.service;
+package com.study.demo.unit.service;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
@@ -12,10 +12,11 @@ import com.study.demo.exception.DuplicatedTransactionException;
 import com.study.demo.exception.SameBankException;
 import com.study.demo.exception.TransactionNotFoundException;
 import com.study.demo.exception.ZeroAmountException;
-import com.study.demo.fixtures.transaction.TransactionDTOFixtures;
-import com.study.demo.fixtures.transaction.TransactionFixtures;
 import com.study.demo.repository.ConfigurationRepository;
 import com.study.demo.repository.TransactionRepository;
+import com.study.demo.service.TransactionService;
+import com.study.demo.unit.fixtures.transaction.TransactionDTOFixtures;
+import com.study.demo.unit.fixtures.transaction.TransactionFixtures;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

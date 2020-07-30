@@ -1,4 +1,4 @@
-package com.study.demo.fixtures.account;
+package com.study.demo.unit.fixtures.account;
 
 import com.study.demo.dto.AccountDTO;
 

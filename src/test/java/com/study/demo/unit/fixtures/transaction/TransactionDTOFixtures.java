@@ -1,7 +1,7 @@
-package com.study.demo.fixtures.transaction;
+package com.study.demo.unit.fixtures.transaction;
 
 import com.study.demo.dto.TransactionDTO;
-import com.study.demo.fixtures.account.AccountDTOFixtures;
+import com.study.demo.unit.fixtures.account.AccountDTOFixtures;
 
 public class TransactionDTOFixtures {
 
