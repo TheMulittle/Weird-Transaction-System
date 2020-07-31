@@ -47,7 +47,7 @@ public class TransactionServiceTest {
     public void shouldSaveTheTransaction_whenTransactionIsSuccessful() {
         TransactionDTO transaction = TransactionDTOFixtures.simpleTransaction();
         when(transactionRepo.findByTransactionReferenceAndSenderBankCode(transaction.getTransactionReference(),
-                transaction.getBankCode())).thenReturn(null);
+                transaction.getSenderAccount().getBankCode())).thenReturn(null);
         transactionService.transact(transaction);
         verify(transactionRepo).save(any());
     }
@@ -73,7 +73,7 @@ public class TransactionServiceTest {
         TransactionDTO transactionDTO = TransactionDTOFixtures.simpleTransaction();
         Transaction transactionEntity = TransactionFixtures.simpleTransaction();
         when(transactionRepo.findByTransactionReferenceAndSenderBankCode(transactionDTO.getTransactionReference(),
-                transactionDTO.getBankCode())).thenReturn(transactionEntity);
+                transactionDTO.getSenderAccount().getBankCode())).thenReturn(transactionEntity);
         Assertions.assertThrows(DuplicatedTransactionException.class, () -> {
             transactionService.transact(transactionDTO);
         });
@@ -85,7 +85,7 @@ public class TransactionServiceTest {
 
         lenient()
                 .when(transactionRepo.findByTransactionReferenceAndSenderBankCode(transaction.getTransactionReference(),
-                        transaction.getBankCode()))
+                        transaction.getSenderAccount().getBankCode()))
                 .thenReturn(null);
         lenient()
                 .when(transactionRepo.findByTransactionReferenceAndSenderBankCode(
@@ -105,15 +105,4 @@ public class TransactionServiceTest {
             transactionService.transact(transaction);
         });
     }
-
-    @Test
-    public void shouldReturnException_whenBankCodeOfTransactionDiffersFromBankCodeOfTheSenderAccount() {
-        TransactionDTO transaction = TransactionDTOFixtures
-                .transactionWhoseBankCodeDiffersFromBankCodeOfSenderAccount();
-
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            transactionService.transact(transaction);
-        });
-    }
-
 }

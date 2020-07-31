@@ -27,7 +27,6 @@ public class TransactionService {
 
     public Transaction transact(TransactionDTO transaction) {
 
-        validateBankCode(transaction);
         validateTransactionAmount(transaction);
         validateTransactionIsNotDuplicated(transaction);
         validatePreviousTransactionExists(transaction);
@@ -36,13 +35,6 @@ public class TransactionService {
         Transaction transactionToPersist = modelMapper.map(transaction, Transaction.class);
 
         return transactionRepository.save(transactionToPersist);
-    }
-
-    private void validateBankCode(TransactionDTO transaction) {
-        if (!transaction.getBankCode().equals(transaction.getSenderAccount().getBankCode())) {
-            throw new IllegalArgumentException(
-                    "The transaction bank code differs from the bank code of the sender account");
-        }
     }
 
     private void validateTransactionAmount(TransactionDTO transaction) {
@@ -58,10 +50,11 @@ public class TransactionService {
 
     private void validateTransactionIsNotDuplicated(TransactionDTO transaction) {
         Transaction searchResult = transactionRepository.findByTransactionReferenceAndSenderBankCode(
-                transaction.getTransactionReference(), transaction.getBankCode());
+                transaction.getTransactionReference(), transaction.getSenderAccount().getBankCode());
 
         if (searchResult != null) {
-            throw new DuplicatedTransactionException(transaction.getTransactionReference(), transaction.getBankCode());
+            throw new DuplicatedTransactionException(transaction.getTransactionReference(),
+                    transaction.getSenderAccount().getBankCode());
         }
     }
 
