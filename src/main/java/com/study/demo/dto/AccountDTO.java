@@ -1,14 +1,16 @@
 package com.study.demo.dto;
 
-import javax.persistence.Embeddable;
 import javax.validation.constraints.NotEmpty;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@Embeddable
+@AllArgsConstructor
+@NoArgsConstructor
 public class AccountDTO {
 
     @NotEmpty

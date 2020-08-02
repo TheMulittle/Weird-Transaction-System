@@ -1,6 +1,8 @@
 package com.study.demo.controller;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 import com.study.demo.dto.TransactionDTO;
 import com.study.demo.service.SecurityService;
@@ -24,13 +26,15 @@ public class TransactionController {
     private final SecurityService securityService;
     private final TransactionService transactionService;
 
-    @PostMapping("/add")
+    @PostMapping("/payment/initiate")
     @ResponseStatus(HttpStatus.CREATED)
+    @Produces(MediaType.APPLICATION_JSON)
     public void performTransaction(@RequestBody TransactionDTO transaction,
             @RequestHeader("SIGNATURE") String signature, HttpServletRequest request) {
 
-        securityService.validateSenderBankAuthenticity(transaction.getSenderAccount().getBankCode(),
-                request.getRemoteAddr());
+        securityService.validateSenderBankAuthenticity(request.getRemoteAddr(),
+                transaction.getSenderAccount().getBankCode());
+
         transactionService.transact(transaction);
     }
 

@@ -1,0 +1,18 @@
+    {
+        "amount": 10000,
+        "transactionReference": "123456789",
+        "senderAccount": {
+            "ownerFirstName": "John",
+            "ownerLastName": "Johnson",
+            "ownerDocumentNumber": "WWW123456",
+            "accountNumber": "000123456",
+            "bankCode": "01"
+        },
+        "receiverAccount": {
+            "ownerFirstName": "Mark",
+            "ownerLastName": "Markson",
+            "ownerDocumentNumber": "WAX000001",
+            "accountNumber": "123000000",
+            "bankCode": "99"
+        }
+    }

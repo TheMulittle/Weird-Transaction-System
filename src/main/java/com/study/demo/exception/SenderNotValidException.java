@@ -2,10 +2,12 @@ package com.study.demo.exception;
 
 public class SenderNotValidException extends IllegalArgumentException {
 
-    private static final long serialVersionUID = 2L;
+    private static final long serialVersionUID = -8107546401589745784L;
+
+    public static final String MESSAGE = "The remote address of the sender bank {%s} does not correspond to the Bank Code {%s} of the Sender Account";
 
     public SenderNotValidException(String senderIP, String bankCode) {
-        super("The given pair senderIP/bankCode is not valid: [" + senderIP + "/" + bankCode + "]");
+        super(String.format(MESSAGE, senderIP, bankCode));
     }
 
 }

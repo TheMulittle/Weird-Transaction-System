@@ -13,7 +13,7 @@ public class SecurityService {
 
     private final BankLinkRepository bankLinkRepository;
 
-    public void validateSenderBankAuthenticity(String bankCode, String senderIP) throws SenderNotValidException {
+    public void validateSenderBankAuthenticity(String senderIP, String bankCode) throws SenderNotValidException {
         if (bankLinkRepository.findByBankCodeAndBankIP(bankCode, senderIP) == null) {
             throw new SenderNotValidException(senderIP, bankCode);
         }
