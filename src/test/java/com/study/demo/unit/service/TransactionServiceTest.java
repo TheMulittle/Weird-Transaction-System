@@ -6,12 +6,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.study.demo.dto.TransactionDTO;
+import com.study.demo.entity.Configuration;
 import com.study.demo.entity.Transaction;
 import com.study.demo.exception.AmountGreaterThanMaximumException;
+import com.study.demo.exception.AmountSmallerThanMinimumException;
 import com.study.demo.exception.DuplicatedTransactionException;
 import com.study.demo.exception.SameBankException;
 import com.study.demo.exception.TransactionNotFoundException;
-import com.study.demo.exception.ZeroAmountException;
 import com.study.demo.repository.ConfigurationRepository;
 import com.study.demo.repository.TransactionRepository;
 import com.study.demo.service.TransactionService;
@@ -40,7 +41,8 @@ public class TransactionServiceTest {
 
     @BeforeEach
     public void setup() {
-        lenient().when(configurationRepo.findByName("MAX_AMOUNT")).thenReturn("500");
+        lenient().when(configurationRepo.findByName("MAX_AMOUNT")).thenReturn(new Configuration("MAX_AMOUNT", "500"));
+        lenient().when(configurationRepo.findByName("MIN_AMOUNT")).thenReturn(new Configuration("MIN_AMOUNT", "0"));
     }
 
     @Test
@@ -61,9 +63,9 @@ public class TransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnException_whenTransactionAmountIsZero() {
+    public void shouldReturnException_whenTransactionAmountIsLowerThanLimit() {
         TransactionDTO transaction = TransactionDTOFixtures.transactionWithAmountZero();
-        Assertions.assertThrows(ZeroAmountException.class, () -> {
+        Assertions.assertThrows(AmountSmallerThanMinimumException.class, () -> {
             transactionService.transact(transaction);
         });
     }
@@ -99,7 +101,7 @@ public class TransactionServiceTest {
 
     @Test
     public void shouldReturnException_whenTransactionIsFromAccountsOfTheSameBank() {
-        TransactionDTO transaction = TransactionDTOFixtures.transactionWithAccountsFromTheSameBank();
+        TransactionDTO transaction = TransactionDTOFixtures.sameBankTransasction();
 
         Assertions.assertThrows(SameBankException.class, () -> {
             transactionService.transact(transaction);

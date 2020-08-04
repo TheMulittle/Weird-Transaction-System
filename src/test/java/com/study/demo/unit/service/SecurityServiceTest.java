@@ -32,7 +32,7 @@ public class SecurityServiceTest {
         when(bankLinkRepository.findByBankCodeAndBankIP(BANK_CODE, BANK_IP)).thenReturn(null);
 
         Assertions.assertThrows(SenderNotValidException.class, () -> {
-            securityService.validateSenderBankAuthenticity(BANK_CODE, BANK_IP);
+            securityService.validateSenderBankAuthenticity(BANK_IP, BANK_CODE);
         });
 
     }
@@ -43,7 +43,7 @@ public class SecurityServiceTest {
         BankLink bankLink = BankLink.builder().bankCode(BANK_CODE).bankIP(BANK_IP).build();
 
         when(bankLinkRepository.findByBankCodeAndBankIP(BANK_CODE, BANK_IP)).thenReturn(bankLink);
-        securityService.validateSenderBankAuthenticity(BANK_CODE, BANK_IP);
+        securityService.validateSenderBankAuthenticity(BANK_IP, BANK_CODE);
     }
 
 }

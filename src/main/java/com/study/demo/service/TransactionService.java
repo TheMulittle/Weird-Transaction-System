@@ -3,10 +3,10 @@ package com.study.demo.service;
 import com.study.demo.dto.TransactionDTO;
 import com.study.demo.entity.Transaction;
 import com.study.demo.exception.AmountGreaterThanMaximumException;
+import com.study.demo.exception.AmountSmallerThanMinimumException;
 import com.study.demo.exception.DuplicatedTransactionException;
 import com.study.demo.exception.SameBankException;
 import com.study.demo.exception.TransactionNotFoundException;
-import com.study.demo.exception.ZeroAmountException;
 import com.study.demo.repository.ConfigurationRepository;
 import com.study.demo.repository.TransactionRepository;
 
@@ -39,12 +39,14 @@ public class TransactionService {
 
     private void validateTransactionAmount(TransactionDTO transaction) {
 
-        Long maxAmount = Long.valueOf(configurationRepository.findByName("MAX_AMOUNT"));
+        Long maxAmount = Long.valueOf(configurationRepository.findByName("MAX_AMOUNT").getValue());
+        Long minAmount = Long.valueOf(configurationRepository.findByName("MIN_AMOUNT").getValue());
+        Long amount = transaction.getAmount();
 
-        if (transaction.getAmount() == 0L) {
-            throw new ZeroAmountException();
-        } else if (transaction.getAmount() > maxAmount) {
-            throw new AmountGreaterThanMaximumException(transaction.getAmount(), maxAmount);
+        if (amount <= minAmount) {
+            throw new AmountSmallerThanMinimumException(amount, minAmount);
+        } else if (amount > maxAmount) {
+            throw new AmountGreaterThanMaximumException(amount, maxAmount);
         }
     }
 

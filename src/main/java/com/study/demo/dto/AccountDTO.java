@@ -1,5 +1,6 @@
 package com.study.demo.dto;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
 import lombok.AllArgsConstructor;
@@ -13,18 +14,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AccountDTO {
 
-    @NotEmpty
+    @NotBlank
     String ownerFirstName;
 
-    @NotEmpty
+    @NotBlank
     String ownerLastName;
 
-    @NotEmpty
+    @NotBlank
     String ownerDocumentNumber;
 
-    @NotEmpty
+    @NotBlank
     String accountNumber;
 
-    @NotEmpty
+    @NotBlank
     String bankCode;
 }

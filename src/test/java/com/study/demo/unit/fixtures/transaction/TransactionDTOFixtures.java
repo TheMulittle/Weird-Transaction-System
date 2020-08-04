@@ -37,7 +37,7 @@ public class TransactionDTOFixtures {
                 .senderAccount(AccountDTOFixtures.simpleSenderAccount()).build();
     }
 
-    public static TransactionDTO transactionWithAccountsFromTheSameBank() {
+    public static TransactionDTO sameBankTransasction() {
 
         return TransactionDTO.builder().amount(50L).transactionReference("000123321")
                 .receiverAccount(AccountDTOFixtures.simpleSenderAccount())

@@ -2,11 +2,12 @@ package com.study.demo.exception;
 
 public class DuplicatedTransactionException extends IllegalArgumentException {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 6618158287081380053L;
+
+    public static final String MESSAGE = "A transaction from bank with code {%s} with reference {%s} already exists";
 
     public DuplicatedTransactionException(String transactionReference, String bankCode) {
-        super("A transaction from bank [" + bankCode + "] with reference [" + transactionReference
-                + "] already exists");
+        super(String.format(MESSAGE, bankCode, transactionReference));
     }
 
 }

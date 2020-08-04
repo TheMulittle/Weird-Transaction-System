@@ -1,6 +1,7 @@
 package com.study.demo.controller;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -10,6 +11,7 @@ import com.study.demo.service.TransactionService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -21,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/transaction")
+@Validated
 public class TransactionController {
 
     private final SecurityService securityService;
@@ -29,7 +32,7 @@ public class TransactionController {
     @PostMapping("/payment/initiate")
     @ResponseStatus(HttpStatus.CREATED)
     @Produces(MediaType.APPLICATION_JSON)
-    public void performTransaction(@RequestBody TransactionDTO transaction,
+    public void performTransaction(@Valid @RequestBody TransactionDTO transaction,
             @RequestHeader("SIGNATURE") String signature, HttpServletRequest request) {
 
         securityService.validateSenderBankAuthenticity(request.getRemoteAddr(),

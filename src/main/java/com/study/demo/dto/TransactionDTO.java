@@ -1,6 +1,7 @@
 package com.study.demo.dto;
 
-import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,17 +16,17 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TransactionDTO {
 
-    @NotEmpty
+    @NotNull
     private long amount;
 
-    @NotEmpty
+    @NotBlank
     private String transactionReference;
 
     private String previousTransactionReference;
 
-    @NotEmpty
+    @NotNull
     private AccountDTO senderAccount;
 
-    @NotEmpty
+    @NotNull
     private AccountDTO receiverAccount;
 }

@@ -8,5 +8,5 @@ import org.springframework.data.repository.CrudRepository;
 
 @Transactional
 public interface ConfigurationRepository extends CrudRepository<Configuration, String> {
-    public String findByName(String name);
+    public Configuration findByName(String name);
 }
