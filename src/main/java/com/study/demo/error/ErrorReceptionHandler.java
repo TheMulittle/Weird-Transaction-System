@@ -4,6 +4,7 @@ import com.study.demo.dto.BaseErrorResponseDTO;
 import com.study.demo.exception.AmountGreaterThanMaximumException;
 import com.study.demo.exception.AmountSmallerThanMinimumException;
 import com.study.demo.exception.DuplicatedTransactionException;
+import com.study.demo.exception.SameBankException;
 import com.study.demo.exception.SenderNotValidException;
 
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,12 @@ public class ErrorReceptionHandler extends ResponseEntityExceptionHandler {
             WebRequest request) {
         return buildResponseEntity(
                 new BaseErrorResponseDTO(HttpStatus.BAD_REQUEST, "Duplicated transaction", ex.getMessage()));
+    }
+
+    @ExceptionHandler(SameBankException.class)
+    protected ResponseEntity<?> handleSameBankConflict(SameBankException ex, WebRequest request) {
+        return buildResponseEntity(new BaseErrorResponseDTO(HttpStatus.BAD_REQUEST,
+                "Sender and receiver pertain to the same bank", ex.getMessage()));
     }
 
     @ExceptionHandler({ AmountGreaterThanMaximumException.class, AmountSmallerThanMinimumException.class })

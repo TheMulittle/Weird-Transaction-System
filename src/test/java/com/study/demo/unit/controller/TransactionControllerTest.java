@@ -11,7 +11,7 @@ import com.study.demo.controller.TransactionController;
 import com.study.demo.dto.TransactionDTO;
 import com.study.demo.exception.AmountGreaterThanMaximumException;
 import com.study.demo.exception.AmountSmallerThanMinimumException;
-import com.study.demo.exception.DuplicatedTransactionException;
+import com.study.demo.exception.SameBankException;
 import com.study.demo.exception.SenderNotValidException;
 import com.study.demo.service.SecurityService;
 import com.study.demo.service.TransactionService;
@@ -19,8 +19,6 @@ import com.study.demo.unit.fixtures.transaction.TransactionJsonFixtures;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -69,11 +67,10 @@ public class TransactionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON).header("SIGNATURE", "dummy")
                 .content(TransactionJsonFixtures.sameBankTransaction());
 
-        doThrow(new DuplicatedTransactionException("000123321", "01")).when(transactionService).transact(any());
+        doThrow(new SameBankException("01")).when(transactionService).transact(any());
 
         mvc.perform(request).andExpect(status().isBadRequest()).andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
-                .andExpect(jsonPath("$.details").value(containsString("{000123321}")))
                 .andExpect(jsonPath("$.details").value(containsString("{01}")));
     }
 
