@@ -6,6 +6,7 @@ import com.study.demo.exception.AmountSmallerThanMinimumException;
 import com.study.demo.exception.DuplicatedTransactionException;
 import com.study.demo.exception.SameBankException;
 import com.study.demo.exception.SenderNotValidException;
+import com.study.demo.exception.TransactionNotFoundException;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -43,6 +44,12 @@ public class ErrorReceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<?> handleAmountBoundariesConflict(IllegalArgumentException ex, WebRequest request) {
         return buildResponseEntity(new BaseErrorResponseDTO(HttpStatus.BAD_REQUEST,
                 "Transaction amount outside of the limits", ex.getMessage()));
+    }
+
+    @ExceptionHandler(TransactionNotFoundException.class)
+    protected ResponseEntity<?> handleNotExistingTransaction(IllegalArgumentException ex, WebRequest request) {
+        return buildResponseEntity(
+                new BaseErrorResponseDTO(HttpStatus.BAD_REQUEST, "Transaction not found", ex.getMessage()));
     }
 
     @Override

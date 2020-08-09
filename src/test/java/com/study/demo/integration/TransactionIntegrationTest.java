@@ -116,4 +116,19 @@ class TransactionIntegrationTest {
                 .andExpect(jsonPath("$.details").value(containsString("{01}")))
                 .andExpect(jsonPath("$.details").value(containsString("{9999999999}")));
     }
+
+    @Test
+    public void whenThePreviousTransactionReferenceDoesNotMatchAValidTransaction_ShouldReturn400BadRequest()
+            throws Exception {
+
+        String transactionJson = TransactionJsonFixtures.notExistingPrevioiusTransaction();
+
+        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate", transactionJson)
+                .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transactionJson);
+
+        mockMvc.perform(request).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.errorMessage").value("Transaction not found"))
+                .andExpect(jsonPath("$.details").value(containsString("{35}")))
+                .andExpect(jsonPath("$.details").value(containsString("{3213213211}")));
+    }
 }

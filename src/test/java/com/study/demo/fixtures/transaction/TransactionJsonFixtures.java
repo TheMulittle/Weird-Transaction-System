@@ -47,6 +47,10 @@ public class TransactionJsonFixtures {
 
     }
 
+    public static String notExistingPrevioiusTransaction() throws IOException {
+        return readJson("notExistingPreviousTransaction.json");
+    }
+
     public static String readJson(String path) throws IOException {
         return readFileToString(new File(BASE_PATH.concat("/").concat(path)), "UTF-8");
     }
