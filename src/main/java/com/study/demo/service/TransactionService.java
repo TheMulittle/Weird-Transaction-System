@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
-//TODO create specific Exception model for the application
 @Service
 @RequiredArgsConstructor
 public class TransactionService {

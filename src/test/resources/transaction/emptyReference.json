@@ -1,6 +1,6 @@
     {
         "amount": 50,
-        "transactionReference": "",
+        "transactionReference": " ",
         "senderAccount": {
             "ownerFirstName": "James",
             "ownerLastName": "Jameson",

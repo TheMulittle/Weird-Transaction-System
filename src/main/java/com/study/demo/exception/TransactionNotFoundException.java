@@ -6,7 +6,7 @@ public class TransactionNotFoundException extends IllegalArgumentException {
 
     public TransactionNotFoundException(String transactionReference, String bankCode) {
         super("A transaction from bank [" + bankCode + "] with reference [" + transactionReference
-                + "] already exists");
+                + "] does not exist");
     }
 
 }

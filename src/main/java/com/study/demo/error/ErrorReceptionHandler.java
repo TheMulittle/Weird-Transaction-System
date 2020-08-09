@@ -7,9 +7,11 @@ import com.study.demo.exception.DuplicatedTransactionException;
 import com.study.demo.exception.SameBankException;
 import com.study.demo.exception.SenderNotValidException;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -43,7 +45,18 @@ public class ErrorReceptionHandler extends ResponseEntityExceptionHandler {
                 "Transaction amount outside of the limits", ex.getMessage()));
     }
 
-    private ResponseEntity<?> buildResponseEntity(BaseErrorResponseDTO error) {
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
+            HttpHeaders headers, HttpStatus status, WebRequest request) {
+
+        String fieldName = ex.getBindingResult().getFieldError().getField();
+        String errorMessage = ex.getBindingResult().getFieldError().getDefaultMessage();
+
+        return buildResponseEntity(new BaseErrorResponseDTO(HttpStatus.BAD_REQUEST, "Message body failed validation",
+                "Field {" + fieldName + "} " + errorMessage));
+    }
+
+    private ResponseEntity<Object> buildResponseEntity(BaseErrorResponseDTO error) {
         return ResponseEntity.status(error.getStatus()).contentType(MediaType.APPLICATION_JSON).body(error);
     }
 }

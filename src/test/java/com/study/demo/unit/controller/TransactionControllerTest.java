@@ -15,7 +15,7 @@ import com.study.demo.exception.SameBankException;
 import com.study.demo.exception.SenderNotValidException;
 import com.study.demo.service.SecurityService;
 import com.study.demo.service.TransactionService;
-import com.study.demo.unit.fixtures.transaction.TransactionJsonFixtures;
+import com.study.demo.fixtures.transaction.TransactionJsonFixtures;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

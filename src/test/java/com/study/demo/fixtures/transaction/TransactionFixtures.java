@@ -1,4 +1,4 @@
-package com.study.demo.unit.fixtures.transaction;
+package com.study.demo.fixtures.transaction;
 
 import com.study.demo.entity.Transaction;
 //import com.study.demo.fixtures.account.AccountFixtures;
