@@ -29,7 +29,7 @@ public class TransactionController {
     private final SecurityService securityService;
     private final TransactionService transactionService;
 
-    @PostMapping("/payment/initiate")
+    @PostMapping("/payment")
     @ResponseStatus(HttpStatus.CREATED)
     @Produces(MediaType.APPLICATION_JSON)
     public void performTransaction(@Valid @RequestBody TransactionDTO transaction,
@@ -40,5 +40,4 @@ public class TransactionController {
 
         transactionService.transact(transaction);
     }
-
 }

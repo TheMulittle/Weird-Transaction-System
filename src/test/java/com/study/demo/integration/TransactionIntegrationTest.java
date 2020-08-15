@@ -37,12 +37,14 @@ class TransactionIntegrationTest {
     @Autowired
     private TransactionRepository transactionRepo;
 
-    @ParameterizedTest(name = "When ''{1}'' is blank or null in /transaction/payment/iniate post call, should return 400 BAD REQUEST")
+    private final static String PAYMENT_ENDPOINT = "/transaction/payment";
+
+    @ParameterizedTest(name = "When ''{1}'' is blank or null in /transaction/payment post call, should return 400 BAD REQUEST")
     @MethodSource("com.study.demo.fixtures.transaction.TransactionJsonFixtures#notBlankValidation")
     public void shouldReturn400BadRequest_whenAParameterThatShouldnotBeBlankIsBlank(String transaction, String field)
             throws Exception {
 
-        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate", transaction)
+        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transaction)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transaction);
 
         mockMvc.perform(request).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -51,12 +53,12 @@ class TransactionIntegrationTest {
                 .andExpect(jsonPath("$.details").value(containsString("must not be blank")));
     }
 
-    @ParameterizedTest(name = "When ''{1}'' is  null in /transaction/payment/iniate post call, should return 400 BAD REQUEST")
+    @ParameterizedTest(name = "When ''{1}'' is  null in /transaction/payment post call, should return 400 BAD REQUEST")
     @MethodSource("com.study.demo.fixtures.transaction.TransactionJsonFixtures#notNullValidation")
     public void shouldReturn400BadRequest_whenARequiredParameterIsBlank(String transaction, String field)
             throws Exception {
 
-        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate", transaction)
+        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transaction)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transaction);
 
         mockMvc.perform(request).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -66,12 +68,12 @@ class TransactionIntegrationTest {
     }
 
     @Test
-    @DisplayName("When 'previousTransaction' is empty in /transaction/payment/iniate post call, should return 400 BAD REQUEST")
+    @DisplayName("When 'previousTransaction' is empty in /transaction/payment post call, should return 400 BAD REQUEST")
     public void shouldReturn400BadRequest_whenANonRequiredParameterIsEmpty() throws Exception {
 
         String transaction = TransactionJsonFixtures.emptyPreviousReference();
 
-        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate", transaction)
+        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transaction)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transaction);
 
         mockMvc.perform(request).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -81,11 +83,11 @@ class TransactionIntegrationTest {
     }
 
     @Test
-    @DisplayName("When the value of 'transactionReference' matches an already existing transaction in /transaction/payment/iniate post call, should return 400 BAD REQUEST")
+    @DisplayName("When the value of 'transactionReference' matches an already existing transaction in /transaction/payment post call, should return 400 BAD REQUEST")
     public void shouldReturn400BadRequest_whenTryingToPerfomAnAlreadyExistingTransaction_() throws Exception {
         String transactionJson = TransactionJsonFixtures.alreadyExistingTransaction();
 
-        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate", transactionJson)
+        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transactionJson)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transactionJson);
 
         mockMvc.perform(request).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -95,13 +97,13 @@ class TransactionIntegrationTest {
     }
 
     @Test
-    @DisplayName("When the value of 'previousTransactionReference' does not match a previous transasction in /transaction/payment/iniate post call, should return 400 BAD REQUEST")
+    @DisplayName("When the value of 'previousTransactionReference' does not match a previous transasction in /transaction/payment post call, should return 400 BAD REQUEST")
     public void shouldReturn400BadRequest_whenThePreviousTransactionReferenceDoesNotMatchAValidTransaction_()
             throws Exception {
 
         String transactionJson = TransactionJsonFixtures.notExistingPrevioiusTransaction();
 
-        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate", transactionJson)
+        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transactionJson)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transactionJson);
 
         mockMvc.perform(request).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -111,12 +113,12 @@ class TransactionIntegrationTest {
     }
 
     @Test
-    @DisplayName("When all fields pass validation in /transaction/payment/iniate post call, should return 201 CREATED and persist to the database")
+    @DisplayName("When all fields pass validation in /transaction/payment post call, should return 201 CREATED and persist to the database")
     public void shouldPersitTheTransaction_whenAllFieldsPassValidation() throws Exception {
 
         String transactionJson = TransactionJsonFixtures.simple();
 
-        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate", transactionJson)
+        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transactionJson)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transactionJson);
 
         mockMvc.perform(request).andExpect(status().isCreated());
@@ -140,13 +142,13 @@ class TransactionIntegrationTest {
     }
 
     @Test
-    @DisplayName("When a transaction refers to a previous transaction via 'previousTransactionReference' and that transaction exists, when post calling /transaction/payment/iniate, should return 201 CREATED and persist to the database")
+    @DisplayName("When a transaction refers to a previous transaction via 'previousTransactionReference' and that transaction exists, when post calling /transaction/payment, should return 201 CREATED and persist to the database")
     public void shouldPersitTheTransaction_whenTheTransactionReferencedByPreviousTransactionReferenceExists()
             throws Exception {
 
         String transactionJson = TransactionJsonFixtures.existingPreviousTransaction();
 
-        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate", transactionJson)
+        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transactionJson)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transactionJson);
 
         mockMvc.perform(request).andExpect(status().isCreated());
@@ -168,5 +170,4 @@ class TransactionIntegrationTest {
         assertThat(persistedTransction.getReceiverAccountNumber(), is("000654123"));
         assertThat(persistedTransction.getReceiverBankCode(), is("35"));
     }
-
 }

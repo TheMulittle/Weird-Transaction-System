@@ -45,12 +45,13 @@ public class TransactionControllerTest {
     @Mock
     private TransactionDTO mockTransaction;
 
+    private final static String PAYMENT_ENDPOINT = "/transaction/payment";
+
     @Test
     public void shouldReturn401_whenTheSenderBankIPdiffersFromTheBankCode() throws Exception {
 
-        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate")
-                .contentType(MediaType.APPLICATION_JSON).header("SIGNATURE", "dummy")
-                .content(TransactionJsonFixtures.simple());
+        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
+                .header("SIGNATURE", "dummy").content(TransactionJsonFixtures.simple());
 
         doThrow(new SenderNotValidException("127.0.0.1", "01")).when(securityService)
                 .validateSenderBankAuthenticity("127.0.0.1", "01");
@@ -63,9 +64,8 @@ public class TransactionControllerTest {
 
     @Test
     public void shouldReturn400_whenSenderAndReceiverPertainToSameBank() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate")
-                .contentType(MediaType.APPLICATION_JSON).header("SIGNATURE", "dummy")
-                .content(TransactionJsonFixtures.sameBankTransaction());
+        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
+                .header("SIGNATURE", "dummy").content(TransactionJsonFixtures.sameBankTransaction());
 
         doThrow(new SameBankException("01")).when(transactionService).transact(any());
 
@@ -76,9 +76,8 @@ public class TransactionControllerTest {
 
     @Test
     public void shouldReturn400_whenAmountIsHigherThanTheMaximumAllowed() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate")
-                .contentType(MediaType.APPLICATION_JSON).header("SIGNATURE", "dummy")
-                .content(TransactionJsonFixtures.simple());
+        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
+                .header("SIGNATURE", "dummy").content(TransactionJsonFixtures.simple());
 
         doThrow(new AmountGreaterThanMaximumException(50L, 500L)).when(transactionService).transact(any());
 
@@ -90,9 +89,8 @@ public class TransactionControllerTest {
 
     @Test
     public void shouldReturn400_whenAmountIsLowerThanTheMinimumAllowed() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post("/transaction/payment/initiate")
-                .contentType(MediaType.APPLICATION_JSON).header("SIGNATURE", "dummy")
-                .content(TransactionJsonFixtures.simple());
+        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
+                .header("SIGNATURE", "dummy").content(TransactionJsonFixtures.simple());
 
         doThrow(new AmountSmallerThanMinimumException(0L, 0L)).when(transactionService).transact(any());
 
