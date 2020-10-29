@@ -79,6 +79,16 @@ public class TransactionServiceTest {
     }
 
     @Test
+    public void shouldNotReturnException_whenTransactionAmountIsEqualToTheLimit() {
+        when(modelMapper.map(any(), any())).thenReturn(transactionEntityMock);
+        TransactionDTO transaction = TransactionDTOFixtures.transactionWithAmountEqualToLimit();
+
+        Assertions.assertDoesNotThrow(() -> {
+            transactionService.transact(transaction);
+        });
+    }
+
+    @Test
     public void shouldReturnException_whenTransactionAmountIsLowerThanLimit() {
         TransactionDTO transaction = TransactionDTOFixtures.transactionWithAmountZero();
         Assertions.assertThrows(AmountSmallerThanMinimumException.class, () -> {
