@@ -1,6 +1,7 @@
 package com.study.demo.integration;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -10,6 +11,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.study.demo.entity.Transaction;
 import com.study.demo.fixtures.transaction.TransactionJsonFixtures;
+import com.study.demo.model.StateEnum;
 import com.study.demo.repository.TransactionRepository;
 
 import org.junit.jupiter.api.DisplayName;
@@ -139,6 +141,7 @@ class TransactionIntegrationTest {
         assertThat(persistedTransction.getReceiverDocumentNumber(), is("WWW123456"));
         assertThat(persistedTransction.getReceiverAccountNumber(), is("123654123"));
         assertThat(persistedTransction.getReceiverBankCode(), is("35"));
+        assertThat(persistedTransction.getState(), is(StateEnum.INITIATED));
     }
 
     @Test
@@ -169,5 +172,73 @@ class TransactionIntegrationTest {
         assertThat(persistedTransction.getReceiverDocumentNumber(), is("246813579"));
         assertThat(persistedTransction.getReceiverAccountNumber(), is("000654123"));
         assertThat(persistedTransction.getReceiverBankCode(), is("35"));
+    }
+
+    @Test
+    @DisplayName("When a bank makes GET call to /transaction/payment?state=INITIATED?direction=INWARD, it should receive all pending payments towards it")
+    public void shouldReturnAListOfTransactions_whenFilterByInitiatedState() throws Exception {
+
+        // GIVEN there are transactions initiated by bank A towards bank B
+
+        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(PAYMENT_ENDPOINT).header("SIGNATURE", "123456")
+                .queryParam("state", "INITIATED").queryParam("direction", "INWARD")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        // WHEN bank B queries for the inward initiated payments
+        // THEN should return a list of inward pending payments
+        mockMvc.perform(requestForInitiated).andExpect(status().isOk()).andExpect(jsonPath("$.transactions").isArray())
+                .andExpect(jsonPath("$.transactions", hasSize(1)))
+                .andExpect(jsonPath("$.transactions[0].transactionReference").value(is("0000000000")));
+
+        // THEN should mark the transaction as informed in the DB
+        Transaction actualTransaction = transactionRepo.findByTransactionReferenceAndSenderBankCode("0000000000", "35");
+        assertThat(actualTransaction.getInformed(), is(1));
+    }
+
+    @Test
+    @DisplayName("When a bank makes GET call to /transaction/payment?status=CONFIRMED and there are isn´t any pending payment, it should receive an empty list")
+    public void shouldReturnAnEmptyList_whenFilterByStateAndThereIsNotAnyPaymentInThatState() throws Exception {
+
+        // GIVEN there are no transactions initiated by bank A towards bank B
+        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(PAYMENT_ENDPOINT).header("SIGNATURE", "123456")
+                .queryParam("state", "CONFIRMED").queryParam("direction", "OUTWARD")
+                .contentType(MediaType.APPLICATION_JSON);
+
+        // WHEN bank B queries for the initiated payments towards it
+        // THEN should return an empty list
+        mockMvc.perform(requestForInitiated).andExpect(status().isOk()).andExpect(jsonPath("$.transactions").isArray())
+                .andExpect(jsonPath("$.transactions", hasSize(0)));
+    }
+
+    @Test
+    @DisplayName("When a bank makes GET call to /transaction/payment?state=XX and XX is not a valid state, the bank should receive a 400 Bad Request")
+    public void shouldReturn400BadRequest_whenFilterByAnIvalidState() throws Exception {
+
+        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(PAYMENT_ENDPOINT).header("SIGNATURE", "123456")
+                .queryParam("state", "XX").queryParam("direction", "OUTWARD").contentType(MediaType.APPLICATION_JSON);
+
+        // WHEN bank B queries for an invalid state
+        // THEN should return a 400 Bad Request status
+        mockMvc.perform(requestForInitiated).andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
+                .andExpect(jsonPath("$.errorMessage").value("Value not valid"));
+    }
+
+    @Test
+    @DisplayName("When a bank makes GET call to /transaction/payment?direction=INWARD (without a state), all transactions in that direction should be returned")
+    public void shouldReturnAListOfTransactions_whenFilterOnlyByDirection() throws Exception {
+        // GIVEN there are no transactions initiated by bank A towards bank B
+
+        // WHEN bank B queries for transactions specifing only the direction, but not
+        // the state
+        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(PAYMENT_ENDPOINT).header("SIGNATURE", "123456")
+                .queryParam("direction", "INWARD").contentType(MediaType.APPLICATION_JSON);
+        // THEN should return a list of payments with that direction
+        mockMvc.perform(requestForInitiated).andExpect(status().isOk()).andExpect(jsonPath("$.transactions").isArray())
+                .andExpect(jsonPath("$.transactions", hasSize(2))).andExpect(jsonPath("$.transactions[0].transactionReference").value(is("0000000000")));
+
+        // THEN should mark the transaction as informed in the DB
+        Transaction actualTransaction = transactionRepo.findByTransactionReferenceAndSenderBankCode("0000000000", "35");
+        assertThat(actualTransaction.getInformed(), is(1));
     }
 }

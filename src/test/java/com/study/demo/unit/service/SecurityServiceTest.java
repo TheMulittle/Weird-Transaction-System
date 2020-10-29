@@ -1,8 +1,10 @@
 package com.study.demo.unit.service;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.study.demo.entity.BankLink;
+import com.study.demo.exception.IpAdressNotKnownException;
 import com.study.demo.exception.SenderNotValidException;
 import com.study.demo.repository.BankLinkRepository;
 import com.study.demo.service.SecurityService;
@@ -34,7 +36,6 @@ public class SecurityServiceTest {
         Assertions.assertThrows(SenderNotValidException.class, () -> {
             securityService.validateSenderBankAuthenticity(BANK_IP, BANK_CODE);
         });
-
     }
 
     @Test
@@ -44,6 +45,26 @@ public class SecurityServiceTest {
 
         when(bankLinkRepository.findByBankCodeAndBankIP(BANK_CODE, BANK_IP)).thenReturn(bankLink);
         securityService.validateSenderBankAuthenticity(BANK_IP, BANK_CODE);
+    }
+
+    @Test
+    public void shouldNotReturnException_whenAKnownIPIsGiven() {
+        BankLink bankLink = BankLink.builder().bankCode(BANK_CODE).bankIP(BANK_IP).build();
+        when(bankLinkRepository.findByBankIP(BANK_IP)).thenReturn(bankLink);
+
+        securityService.retrieveBankCodeByBankIP(BANK_IP);
+
+        verify(bankLinkRepository).findByBankIP(BANK_IP);
+    }
+
+    @Test
+    public void shouldReturnException_whenBankIPDoesNotExist() {
+
+        when(bankLinkRepository.findByBankIP(BANK_IP)).thenReturn(null);
+
+        Assertions.assertThrows(IpAdressNotKnownException.class, () -> {
+            securityService.retrieveBankCodeByBankIP(BANK_IP);
+        });
     }
 
 }

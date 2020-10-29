@@ -1,5 +1,7 @@
 package com.study.demo.service;
 
+import com.study.demo.entity.BankLink;
+import com.study.demo.exception.IpAdressNotKnownException;
 import com.study.demo.exception.SenderNotValidException;
 import com.study.demo.repository.BankLinkRepository;
 
@@ -19,4 +21,14 @@ public class SecurityService {
         }
     }
 
+    public String retrieveBankCodeByBankIP(String bankIP) throws IpAdressNotKnownException {
+
+        BankLink foundBankLink = bankLinkRepository.findByBankIP(bankIP);
+
+        if (foundBankLink == null) {
+            throw new IpAdressNotKnownException();
+        } else {
+            return foundBankLink.getBankCode();
+        }
+    }
 }

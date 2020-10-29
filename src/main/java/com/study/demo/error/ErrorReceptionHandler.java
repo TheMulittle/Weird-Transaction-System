@@ -4,10 +4,12 @@ import com.study.demo.dto.BaseErrorResponseDTO;
 import com.study.demo.exception.AmountGreaterThanMaximumException;
 import com.study.demo.exception.AmountSmallerThanMinimumException;
 import com.study.demo.exception.DuplicatedTransactionException;
+import com.study.demo.exception.IpAdressNotKnownException;
 import com.study.demo.exception.SameBankException;
 import com.study.demo.exception.SenderNotValidException;
 import com.study.demo.exception.TransactionNotFoundException;
 
+import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,10 +23,10 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class ErrorReceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(SenderNotValidException.class)
-    protected ResponseEntity<?> handleSenderNotValidConflict(SenderNotValidException ex, WebRequest request) {
+    @ExceptionHandler({ SenderNotValidException.class, IpAdressNotKnownException.class })
+    protected ResponseEntity<?> handleSenderNotValidConflict(IllegalArgumentException ex, WebRequest request) {
         return buildResponseEntity(
-                new BaseErrorResponseDTO(HttpStatus.UNAUTHORIZED, "Sender bank not valid", ex.getMessage()));
+                new BaseErrorResponseDTO(HttpStatus.UNAUTHORIZED, "IP address error", ex.getMessage()));
     }
 
     @ExceptionHandler(DuplicatedTransactionException.class)
@@ -61,6 +63,15 @@ public class ErrorReceptionHandler extends ResponseEntityExceptionHandler {
 
         return buildResponseEntity(new BaseErrorResponseDTO(HttpStatus.BAD_REQUEST, "Message body failed validation",
                 "Field {" + fieldName + "} " + errorMessage));
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
+            HttpStatus status, WebRequest request) {
+
+        String message = "The value {" + ex.getValue() + "} is not valid. Check the query parameters / headers / path variables to make sure you pass valid values";
+        return buildResponseEntity(new BaseErrorResponseDTO(HttpStatus.BAD_REQUEST, "Value not valid",
+                message));
     }
 
     private ResponseEntity<Object> buildResponseEntity(BaseErrorResponseDTO error) {

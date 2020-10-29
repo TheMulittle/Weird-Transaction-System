@@ -9,4 +9,6 @@ import org.springframework.data.repository.CrudRepository;
 @Transactional
 public interface BankLinkRepository extends CrudRepository<BankLink, Long> {
     public BankLink findByBankCodeAndBankIP(String bankCode, String bankIP);
+
+    public BankLink findByBankIP(String bankIP);
 }

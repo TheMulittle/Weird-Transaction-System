@@ -2,12 +2,15 @@ package com.study.demo.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.Table;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
+import com.study.demo.model.StateEnum;
 import com.study.demo.validator.NullOrNotBlank;
 
 import lombok.AllArgsConstructor;
@@ -27,6 +30,13 @@ public class Transaction {
     @NotNull
     @Column(name = "AMOUNT")
     private long amount;
+
+    @Column(name = "CURRENT_STATE")
+    @Enumerated(EnumType.STRING)
+    private StateEnum state;
+
+    @Column(name = "INFORMED")
+    private int informed;
 
     @Id
     @NotEmpty
