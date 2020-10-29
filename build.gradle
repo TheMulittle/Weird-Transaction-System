@@ -3,6 +3,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
     id 'jacoco'
+    id 'info.solidsoft.pitest' version '1.5.1'
 }
 
 group = 'com.study'
@@ -43,8 +44,16 @@ jacocoTestReport {
     classDirectories.from = files(classDirectories.files.collect {
       fileTree(dir: it, exclude: [
         'com/study/demo/entity/**',
-        'com/study/demo/dto/**'
+        'com/study/demo/dto/**',
+        'com/study/demo/DemoApplication*'
       ])
     })
   }
+}
+
+pitest {
+    junit5PluginVersion = '0.12'
+    excludedTestClasses = ['**IntegrationTest**']
+    excludedClasses = ['com.study.demo.entity.**', 'com.study.demo.dto.**', 'com.study.demo.configuration.**']
+    threads = 4
 }
