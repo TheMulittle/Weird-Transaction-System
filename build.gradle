@@ -4,6 +4,7 @@ plugins {
 	id 'java'
     id 'jacoco'
     id 'info.solidsoft.pitest' version '1.5.1'
+    id "org.flywaydb.flyway" version "7.1.1"
 }
 
 group = 'com.study'
@@ -56,4 +57,9 @@ pitest {
     excludedTestClasses = ['**IntegrationTest**']
     excludedClasses = ['com.study.demo.entity.**', 'com.study.demo.dto.**', 'com.study.demo.configuration.**']
     threads = 4
+}
+
+flyway {
+    url = "jdbc:h2:file:${projectDir}/h2"
+    user = 'sa'
 }
