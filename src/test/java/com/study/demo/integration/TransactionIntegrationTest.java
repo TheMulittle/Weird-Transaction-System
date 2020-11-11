@@ -1,13 +1,12 @@
 package com.study.demo.integration;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 import com.study.demo.entity.Transaction;
 import com.study.demo.fixtures.transaction.TransactionJsonFixtures;
@@ -16,25 +15,14 @@ import com.study.demo.repository.TransactionRepository;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-@AutoConfigureMockMvc
-class TransactionIntegrationTest {
-
-    @Autowired
-    private MockMvc mockMvc;
+class TransactionIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private TransactionRepository transactionRepo;
@@ -235,10 +223,12 @@ class TransactionIntegrationTest {
                 .queryParam("direction", "INWARD").contentType(MediaType.APPLICATION_JSON);
         // THEN should return a list of payments with that direction
         mockMvc.perform(requestForInitiated).andExpect(status().isOk()).andExpect(jsonPath("$.transactions").isArray())
-                .andExpect(jsonPath("$.transactions", hasSize(2))).andExpect(jsonPath("$.transactions[0].transactionReference").value(is("0000000000")));
+                .andExpect(jsonPath("$.transactions", hasSize(2)))
+                .andExpect(jsonPath("$.transactions[0].transactionReference").value(is("0000000000")));
 
         // THEN should mark the transaction as informed in the DB
         Transaction actualTransaction = transactionRepo.findByTransactionReferenceAndSenderBankCode("0000000000", "35");
         assertThat(actualTransaction.getInformed(), is(1));
     }
+
 }

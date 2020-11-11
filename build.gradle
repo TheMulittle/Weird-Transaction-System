@@ -1,10 +1,10 @@
 plugins {
-	id 'org.springframework.boot' version '2.3.1.RELEASE'
+	id 'org.springframework.boot' version '2.3.5.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
     id 'jacoco'
     id 'info.solidsoft.pitest' version '1.5.1'
-    id "org.flywaydb.flyway" version "7.1.1"
+    id "org.flywaydb.flyway" version "6.5.7"
 }
 
 group = 'com.study'
@@ -18,8 +18,10 @@ repositories {
 dependencies {
     compileOnly 'org.projectlombok:lombok:1.18.12'
 	annotationProcessor 'org.projectlombok:lombok:1.18.12'
+    compile "org.flywaydb:flyway-core:6.5.7"
     compile 'io.springfox:springfox-boot-starter:3.0.0'
     compile 'io.springfox:springfox-swagger-ui:3.0.0'
+    compile 'mysql:mysql-connector-java:8.0.12'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -28,11 +30,19 @@ dependencies {
     implementation 'org.modelmapper:modelmapper:2.3.8'
     implementation 'commons-io:commons-io:2.7'
     implementation 'javax.ws.rs:javax.ws.rs-api:2.0'
+    testCompile "org.testcontainers:mysql:1.15.0"
+    testImplementation "org.testcontainers:junit-jupiter:1.15.0"
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
     testImplementation 'org.mockito:mockito-core:2.21.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:2.23.0'
+}
+
+ext {
+   dbUrl = "jdbc:mysql://localhost:3306/public?useSSL=false&allowPublicKeyRetrieval=true"
+   dbUser = System.getProperty("dbUser")
+   dbPass = System.getProperty("dbPass")
 }
 
 test {
@@ -60,6 +70,14 @@ pitest {
 }
 
 flyway {
-    url = "jdbc:h2:file:${projectDir}/h2"
-    user = 'sa'
+    url = project.ext.dbUrl
+    user = project.ext.dbUser
+    password = project.ext.dbPass
 }
+
+bootRun {
+    systemProperties['dbUrl'] = project.ext.dbUrl
+    systemProperties['dbUser'] = project.ext.dbUser
+    systemProperties['dbPass'] = project.ext.dbPass
+}
+
