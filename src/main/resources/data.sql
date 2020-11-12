@@ -3,16 +3,13 @@ INSERT INTO
 VALUES
   ('MAX_AMOUNT', '50000'),
   ('MIN_AMOUNT', '0');
-
 INSERT INTO
-  BANK_LINK (BANK_IP, BANK_CODE)
+  ENTITY_LINK (ENTITY_IP, ENTITY_CODE)
 VALUES
   ('0:0:0:0:0:0:0:1', '01'),
   ('127.0.0.1', '01');
-
-
 INSERT INTO
-  CREDIT_TRANSACTION (
+  TRANSACTION (
     amount,
     transaction_reference,
     previous_transaction_reference,
@@ -20,12 +17,12 @@ INSERT INTO
     receiver_Last_Name,
     receiver_Document_Number,
     receiver_Account_Number,
-    receiver_Bank_Code,
+    receiver_Entity_Code,
     sender_first_name,
     sender_Last_Name,
     sender_Document_Number,
     sender_Account_Number,
-    sender_Bank_Code,
+    sender_Entity_Code,
     current_state,
     informed
   )

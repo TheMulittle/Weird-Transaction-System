@@ -13,7 +13,7 @@ import com.study.demo.entity.Transaction;
 import com.study.demo.exception.AmountGreaterThanMaximumException;
 import com.study.demo.exception.AmountSmallerThanMinimumException;
 import com.study.demo.exception.DuplicatedTransactionException;
-import com.study.demo.exception.SameBankException;
+import com.study.demo.exception.SameEntityException;
 import com.study.demo.exception.TransactionNotFoundException;
 import com.study.demo.repository.ConfigurationRepository;
 import com.study.demo.repository.TransactionRepository;
@@ -64,8 +64,8 @@ public class TransactionServiceTest {
         when(modelMapper.map(any(), any())).thenReturn(transactionEntityMock);
 
         TransactionDTO transaction = TransactionDTOFixtures.simpleTransaction();
-        when(transactionRepo.findByTransactionReferenceAndSenderBankCode(transaction.getTransactionReference(),
-                transaction.getSenderAccount().getBankCode())).thenReturn(null);
+        when(transactionRepo.findByTransactionReferenceAndSenderEntityCode(transaction.getTransactionReference(),
+                transaction.getSenderAccount().getEntityCode())).thenReturn(null);
         transactionService.transact(transaction);
         verify(transactionRepo).save(any());
     }
@@ -97,11 +97,11 @@ public class TransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnException_whenTransactionReferenceAlreadyExistsForTheGivenBank() {
+    public void shouldReturnException_whenTransactionReferenceAlreadyExistsForTheGivenEntity() {
         TransactionDTO transactionDTO = TransactionDTOFixtures.simpleTransaction();
         Transaction transactionEntity = TransactionFixtures.simpleTransaction();
-        when(transactionRepo.findByTransactionReferenceAndSenderBankCode(transactionDTO.getTransactionReference(),
-                transactionDTO.getSenderAccount().getBankCode())).thenReturn(transactionEntity);
+        when(transactionRepo.findByTransactionReferenceAndSenderEntityCode(transactionDTO.getTransactionReference(),
+                transactionDTO.getSenderAccount().getEntityCode())).thenReturn(transactionEntity);
         Assertions.assertThrows(DuplicatedTransactionException.class, () -> {
             transactionService.transact(transactionDTO);
         });
@@ -112,12 +112,11 @@ public class TransactionServiceTest {
         TransactionDTO transaction = TransactionDTOFixtures.transactionWithReferenceToPrevious();
 
         lenient()
-                .when(transactionRepo.findByTransactionReferenceAndSenderBankCode(transaction.getTransactionReference(),
-                        transaction.getSenderAccount().getBankCode()))
+                .when(transactionRepo.findByTransactionReferenceAndSenderEntityCode(
+                        transaction.getTransactionReference(), transaction.getSenderAccount().getEntityCode()))
                 .thenReturn(null);
-        lenient()
-                .when(transactionRepo.findByTransactionReferenceAndSenderBankCode(
-                        transaction.getPreviousTransactionReference(), transaction.getReceiverAccount().getBankCode()))
+        lenient().when(transactionRepo.findByTransactionReferenceAndSenderEntityCode(
+                transaction.getPreviousTransactionReference(), transaction.getReceiverAccount().getEntityCode()))
                 .thenReturn(null);
 
         Assertions.assertThrows(TransactionNotFoundException.class, () -> {
@@ -126,28 +125,28 @@ public class TransactionServiceTest {
     }
 
     @Test
-    public void shouldReturnException_whenTransactionIsFromAccountsOfTheSameBank() {
-        TransactionDTO transaction = TransactionDTOFixtures.sameBankTransasction();
+    public void shouldReturnException_whenTransactionIsFromAccountsOfTheSameEntity() {
+        TransactionDTO transaction = TransactionDTOFixtures.sameEntityTransasction();
 
-        Assertions.assertThrows(SameBankException.class, () -> {
+        Assertions.assertThrows(SameEntityException.class, () -> {
             transactionService.transact(transaction);
         });
     }
 
     @ParameterizedTest
     @EnumSource(StateEnum.class)
-    public void shouldQueryTheRepositoryForBothReceiverAndSenderBankTransactions_whenTransactionByStateIsRetrievedWithoutDirection(
+    public void shouldQueryTheRepositoryForBothReceiverAndSenderEntityTransactions_whenTransactionByStateIsRetrievedWithoutDirection(
             StateEnum state) {
 
         TransactionQueryResponse[] queryResponse = { TransactionQueryResponseFixtures.simpleQueryResponse() };
         when(modelMapper.map(any(), any())).thenReturn(queryResponse);
 
-        transactionService.retrieveTransactionsByStateAndDiretionAndBankCode(state, null, "35");
+        transactionService.retrieveTransactionsByStateAndDiretionAndEntityCode(state, null, "35");
 
-        verify(transactionRepo).findByReceiverBankCodeAndState("35", state);
-        verify(transactionRepo).findBySenderBankCodeAndState("35", state);
-        verify(transactionRepo, never()).findByReceiverBankCode(any());
-        verify(transactionRepo, never()).findBySenderBankCode(any());
+        verify(transactionRepo).findByReceiverEntityCodeAndState("35", state);
+        verify(transactionRepo).findBySenderEntityCodeAndState("35", state);
+        verify(transactionRepo, never()).findByReceiverEntityCode(any());
+        verify(transactionRepo, never()).findBySenderEntityCode(any());
     }
 
     @ParameterizedTest
@@ -157,23 +156,23 @@ public class TransactionServiceTest {
         TransactionQueryResponse[] queryResponse = { TransactionQueryResponseFixtures.simpleQueryResponse() };
         when(modelMapper.map(any(), any())).thenReturn(queryResponse);
 
-        transactionService.retrieveTransactionsByStateAndDiretionAndBankCode(null, direction, "35");
+        transactionService.retrieveTransactionsByStateAndDiretionAndEntityCode(null, direction, "35");
 
-        verify(transactionRepo, never()).findByReceiverBankCodeAndState(any(), any());
-        verify(transactionRepo, never()).findBySenderBankCodeAndState(any(), any());
+        verify(transactionRepo, never()).findByReceiverEntityCodeAndState(any(), any());
+        verify(transactionRepo, never()).findBySenderEntityCodeAndState(any(), any());
     }
 
     @Test
-    public void shouldQueryAllTransactionsRelatedToABank_whenTransactionIsRetrievedWithoutDirectionAndState() {
+    public void shouldQueryAllTransactionsRelatedToAEntity_whenTransactionIsRetrievedWithoutDirectionAndState() {
         TransactionQueryResponse[] queryResponse = { TransactionQueryResponseFixtures.simpleQueryResponse() };
         when(modelMapper.map(any(), any())).thenReturn(queryResponse);
 
-        transactionService.retrieveTransactionsByStateAndDiretionAndBankCode(null, null, "35");
+        transactionService.retrieveTransactionsByStateAndDiretionAndEntityCode(null, null, "35");
 
-        verify(transactionRepo).findByReceiverBankCode("35");
-        verify(transactionRepo).findBySenderBankCode("35");
-        verify(transactionRepo, never()).findByReceiverBankCodeAndState(any(), any());
-        verify(transactionRepo, never()).findBySenderBankCodeAndState(any(), any());
+        verify(transactionRepo).findByReceiverEntityCode("35");
+        verify(transactionRepo).findBySenderEntityCode("35");
+        verify(transactionRepo, never()).findByReceiverEntityCodeAndState(any(), any());
+        verify(transactionRepo, never()).findBySenderEntityCodeAndState(any(), any());
     }
 
     @Test
@@ -181,12 +180,12 @@ public class TransactionServiceTest {
         TransactionQueryResponse[] queryResponse = { TransactionQueryResponseFixtures.simpleQueryResponse() };
         when(modelMapper.map(any(), any())).thenReturn(queryResponse);
 
-        transactionService.retrieveTransactionsByStateAndDiretionAndBankCode(StateEnum.REJECTED, DirectionEnum.INWARD,
+        transactionService.retrieveTransactionsByStateAndDiretionAndEntityCode(StateEnum.REJECTED, DirectionEnum.INWARD,
                 "35");
 
-        verify(transactionRepo).findByReceiverBankCodeAndState("35", StateEnum.REJECTED);
-        verify(transactionRepo, never()).findBySenderBankCodeAndState(any(), any());
-        verify(transactionRepo, never()).findByReceiverBankCode(any());
-        verify(transactionRepo, never()).findBySenderBankCode(any());
+        verify(transactionRepo).findByReceiverEntityCodeAndState("35", StateEnum.REJECTED);
+        verify(transactionRepo, never()).findBySenderEntityCodeAndState(any(), any());
+        verify(transactionRepo, never()).findByReceiverEntityCode(any());
+        verify(transactionRepo, never()).findBySenderEntityCode(any());
     }
 }

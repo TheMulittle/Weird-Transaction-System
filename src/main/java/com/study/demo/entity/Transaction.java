@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @IdClass(TransactionId.class)
-@Table(name = "CREDIT_TRANSACTION")
+@Table(name = "TRANSACTION")
 public class Transaction {
 
     @NotNull
@@ -65,8 +65,8 @@ public class Transaction {
 
     @Id
     @NotEmpty
-    @Column(name = "RECEIVER_BANK_CODE")
-    private String receiverBankCode;
+    @Column(name = "RECEIVER_ENTITY_CODE")
+    private String receiverEntityCode;
 
     @NotEmpty
     @Column(name = "SENDER_FIRST_NAME")
@@ -85,7 +85,7 @@ public class Transaction {
     private String senderAccountNumber;
 
     @NotEmpty
-    @Column(name = "SENDER_BANK_CODE")
-    private String senderBankCode;
+    @Column(name = "SENDER_ENTITY_CODE")
+    private String senderEntityCode;
 
 }

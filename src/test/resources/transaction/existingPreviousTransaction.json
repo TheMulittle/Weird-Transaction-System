@@ -1,19 +1,19 @@
-    {
-        "amount": 50,
-        "transactionReference": "1111111111",
-        "previousTransactionReference": "0000000000",
-        "senderAccount": {
-            "ownerFirstName": "Receiver",
-            "ownerLastName": "Receiverson",
-            "ownerDocumentNumber": "WWW123456",
-            "accountNumber": "123654123",
-            "bankCode": "01"
-        },
-        "receiverAccount": {
-            "ownerFirstName": "Sender",
-            "ownerLastName": "Senderson",
-            "ownerDocumentNumber": "246813579",
-            "accountNumber": "000654123",
-            "bankCode": "35"
-        }
-    }
+{
+  "amount": 50,
+  "transactionReference": "1111111111",
+  "previousTransactionReference": "0000000000",
+  "senderAccount": {
+    "ownerFirstName": "Receiver",
+    "ownerLastName": "Receiverson",
+    "ownerDocumentNumber": "WWW123456",
+    "accountNumber": "123654123",
+    "entityCode": "01"
+  },
+  "receiverAccount": {
+    "ownerFirstName": "Sender",
+    "ownerLastName": "Senderson",
+    "ownerDocumentNumber": "246813579",
+    "accountNumber": "000654123",
+    "entityCode": "35"
+  }
+}

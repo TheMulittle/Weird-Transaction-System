@@ -3,10 +3,10 @@ package com.study.demo.unit.service;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.study.demo.entity.BankLink;
+import com.study.demo.entity.EntityLink;
 import com.study.demo.exception.IpAdressNotKnownException;
 import com.study.demo.exception.SenderNotValidException;
-import com.study.demo.repository.BankLinkRepository;
+import com.study.demo.repository.EntityLinkRepository;
 import com.study.demo.service.SecurityService;
 
 import org.junit.jupiter.api.Assertions;
@@ -20,50 +20,50 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class SecurityServiceTest {
 
     @Mock
-    BankLinkRepository bankLinkRepository;
+    EntityLinkRepository entityLinkRepository;
 
     @InjectMocks
     SecurityService securityService;
 
-    private final String BANK_CODE = "01";
-    private final String BANK_IP = "172.17.2.1";
+    private final String ENTITY_CODE = "01";
+    private final String ENTITY_IP = "172.17.2.1";
 
     @Test
-    public void shouldReturnException_whenBankIPDoesNotMatchTheIPForBankCode() {
+    public void shouldReturnException_whenEntityIPDoesNotMatchTheIPForEntityCode() {
 
-        when(bankLinkRepository.findByBankCodeAndBankIP(BANK_CODE, BANK_IP)).thenReturn(null);
+        when(entityLinkRepository.findByEntityCodeAndEntityIP(ENTITY_CODE, ENTITY_IP)).thenReturn(null);
 
         Assertions.assertThrows(SenderNotValidException.class, () -> {
-            securityService.validateSenderBankAuthenticity(BANK_IP, BANK_CODE);
+            securityService.validateSenderEntityAuthenticity(ENTITY_IP, ENTITY_CODE);
         });
     }
 
     @Test
-    public void shouldNotReturnException_whenBankIPMatchesTheIPForBankCode() {
+    public void shouldNotReturnException_whenEntityIPMatchesTheIPForEntityCode() {
 
-        BankLink bankLink = BankLink.builder().bankCode(BANK_CODE).bankIP(BANK_IP).build();
+        EntityLink entityLink = EntityLink.builder().entityCode(ENTITY_CODE).entityIP(ENTITY_IP).build();
 
-        when(bankLinkRepository.findByBankCodeAndBankIP(BANK_CODE, BANK_IP)).thenReturn(bankLink);
-        securityService.validateSenderBankAuthenticity(BANK_IP, BANK_CODE);
+        when(entityLinkRepository.findByEntityCodeAndEntityIP(ENTITY_CODE, ENTITY_IP)).thenReturn(entityLink);
+        securityService.validateSenderEntityAuthenticity(ENTITY_IP, ENTITY_CODE);
     }
 
     @Test
     public void shouldNotReturnException_whenAKnownIPIsGiven() {
-        BankLink bankLink = BankLink.builder().bankCode(BANK_CODE).bankIP(BANK_IP).build();
-        when(bankLinkRepository.findByBankIP(BANK_IP)).thenReturn(bankLink);
+        EntityLink entityLink = EntityLink.builder().entityCode(ENTITY_CODE).entityIP(ENTITY_IP).build();
+        when(entityLinkRepository.findByEntityIP(ENTITY_IP)).thenReturn(entityLink);
 
-        securityService.retrieveBankCodeByBankIP(BANK_IP);
+        securityService.retrieveEntityCodeByEntityIP(ENTITY_IP);
 
-        verify(bankLinkRepository).findByBankIP(BANK_IP);
+        verify(entityLinkRepository).findByEntityIP(ENTITY_IP);
     }
 
     @Test
-    public void shouldReturnException_whenBankIPDoesNotExist() {
+    public void shouldReturnException_whenEntityIPDoesNotExist() {
 
-        when(bankLinkRepository.findByBankIP(BANK_IP)).thenReturn(null);
+        when(entityLinkRepository.findByEntityIP(ENTITY_IP)).thenReturn(null);
 
         Assertions.assertThrows(IpAdressNotKnownException.class, () -> {
-            securityService.retrieveBankCodeByBankIP(BANK_IP);
+            securityService.retrieveEntityCodeByEntityIP(ENTITY_IP);
         });
     }
 

@@ -1,9 +1,9 @@
 package com.study.demo.service;
 
-import com.study.demo.entity.BankLink;
+import com.study.demo.entity.EntityLink;
 import com.study.demo.exception.IpAdressNotKnownException;
 import com.study.demo.exception.SenderNotValidException;
-import com.study.demo.repository.BankLinkRepository;
+import com.study.demo.repository.EntityLinkRepository;
 
 import org.springframework.stereotype.Service;
 
@@ -13,22 +13,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityService {
 
-    private final BankLinkRepository bankLinkRepository;
+    private final EntityLinkRepository entityLinkRepository;
 
-    public void validateSenderBankAuthenticity(String senderIP, String bankCode) throws SenderNotValidException {
-        if (bankLinkRepository.findByBankCodeAndBankIP(bankCode, senderIP) == null) {
-            throw new SenderNotValidException(senderIP, bankCode);
+    public void validateSenderEntityAuthenticity(String senderIP, String entityCode) throws SenderNotValidException {
+        if (entityLinkRepository.findByEntityCodeAndEntityIP(entityCode, senderIP) == null) {
+            throw new SenderNotValidException(senderIP, entityCode);
         }
     }
 
-    public String retrieveBankCodeByBankIP(String bankIP) throws IpAdressNotKnownException {
+    public String retrieveEntityCodeByEntityIP(String entityIP) throws IpAdressNotKnownException {
 
-        BankLink foundBankLink = bankLinkRepository.findByBankIP(bankIP);
+        EntityLink foundEntityLink = entityLinkRepository.findByEntityIP(entityIP);
 
-        if (foundBankLink == null) {
+        if (foundEntityLink == null) {
             throw new IpAdressNotKnownException();
         } else {
-            return foundBankLink.getBankCode();
+            return foundEntityLink.getEntityCode();
         }
     }
 }

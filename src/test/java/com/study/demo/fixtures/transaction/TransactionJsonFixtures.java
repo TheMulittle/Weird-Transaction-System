@@ -17,14 +17,14 @@ public class TransactionJsonFixtures {
         return readFileToString(new File("src/test/resources/transaction/SimpleTransaction.json"), "UTF-8");
     }
 
-    public static String sameBankTransaction() throws IOException {
+    public static String sameEntityTransaction() throws IOException {
 
-        return readFileToString(new File("src/test/resources/transaction/SameBankTransaction.json"), "UTF-8");
+        return readFileToString(new File("src/test/resources/transaction/SameEntityTransaction.json"), "UTF-8");
     }
 
     public static Stream<Arguments> notBlankValidation() throws IOException {
         return Stream.of(Arguments.of(readJson("missingReference.json"), "transactionReference"),
-                Arguments.of(readJson("missingSenderBankCode.json"), "senderAccount.bankCode"),
+                Arguments.of(readJson("missingSenderEntityCode.json"), "senderAccount.entityCode"),
                 Arguments.of(readJson("missingSenderDocumentNumber.json"), "senderAccount.ownerDocumentNumber"),
                 Arguments.of(readJson("missingSenderFirstName.json"), "senderAccount.ownerFirstName"),
                 Arguments.of(readJson("emptySenderFirstName.json"), "senderAccount.ownerFirstName"),

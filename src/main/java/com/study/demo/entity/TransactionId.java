@@ -8,5 +8,5 @@ public class TransactionId implements Serializable {
 
     public String transactionReference;
 
-    public String receiverBankCode;
+    public String receiverEntityCode;
 }

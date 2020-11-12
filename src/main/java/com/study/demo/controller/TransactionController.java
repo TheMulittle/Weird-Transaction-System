@@ -34,27 +34,27 @@ public class TransactionController {
     private final SecurityService securityService;
     private final TransactionService transactionService;
 
-    @PostMapping("/payment")
+    @PostMapping("/transaction")
     @ResponseStatus(HttpStatus.CREATED)
     @Produces(MediaType.APPLICATION_JSON)
     public void performTransaction(@Valid @RequestBody TransactionDTO transaction,
             @RequestHeader("SIGNATURE") String signature, HttpServletRequest request) {
 
-        securityService.validateSenderBankAuthenticity(request.getRemoteAddr(),
-                transaction.getSenderAccount().getBankCode());
+        securityService.validateSenderEntityAuthenticity(request.getRemoteAddr(),
+                transaction.getSenderAccount().getEntityCode());
 
         transactionService.transact(transaction);
     }
 
-    @GetMapping("/payment")
+    @GetMapping("/transaction")
     @ResponseStatus(HttpStatus.OK)
     @Produces(MediaType.APPLICATION_JSON)
-    public TransactionQueryResponses getTransaction(@RequestParam(required=false) StateEnum state,
+    public TransactionQueryResponses getTransaction(@RequestParam(required = false) StateEnum state,
             @RequestParam(required = false) DirectionEnum direction, @RequestHeader("SIGNATURE") String signature,
             HttpServletRequest request) {
 
-        String bankCode = securityService.retrieveBankCodeByBankIP(request.getRemoteAddr());
+        String entityCode = securityService.retrieveEntityCodeByEntityIP(request.getRemoteAddr());
 
-        return transactionService.retrieveTransactionsByStateAndDiretionAndBankCode(state, direction, bankCode);
+        return transactionService.retrieveTransactionsByStateAndDiretionAndEntityCode(state, direction, entityCode);
     }
 }

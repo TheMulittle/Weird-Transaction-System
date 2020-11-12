@@ -27,14 +27,14 @@ class TransactionIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private TransactionRepository transactionRepo;
 
-    private final static String PAYMENT_ENDPOINT = "/transaction/payment";
+    private final static String TRANSACTION_ENDPOINT = "/transaction/transaction";
 
-    @ParameterizedTest(name = "When ''{1}'' is blank or null in /transaction/payment post call, should return 400 BAD REQUEST")
+    @ParameterizedTest(name = "When ''{1}'' is blank or null in /transaction/transaction post call, should return 400 BAD REQUEST")
     @MethodSource("com.study.demo.fixtures.transaction.TransactionJsonFixtures#notBlankValidation")
     public void shouldReturn400BadRequest_whenAParameterThatShouldnotBeBlankIsBlank(String transaction, String field)
             throws Exception {
 
-        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transaction)
+        RequestBuilder request = MockMvcRequestBuilders.post(TRANSACTION_ENDPOINT, transaction)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transaction);
 
         mockMvc.perform(request).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -43,12 +43,12 @@ class TransactionIntegrationTest extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.details").value(containsString("must not be blank")));
     }
 
-    @ParameterizedTest(name = "When ''{1}'' is  null in /transaction/payment post call, should return 400 BAD REQUEST")
+    @ParameterizedTest(name = "When ''{1}'' is  null in /transaction/transaction post call, should return 400 BAD REQUEST")
     @MethodSource("com.study.demo.fixtures.transaction.TransactionJsonFixtures#notNullValidation")
     public void shouldReturn400BadRequest_whenARequiredParameterIsBlank(String transaction, String field)
             throws Exception {
 
-        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transaction)
+        RequestBuilder request = MockMvcRequestBuilders.post(TRANSACTION_ENDPOINT, transaction)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transaction);
 
         mockMvc.perform(request).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -58,12 +58,12 @@ class TransactionIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("When 'previousTransaction' is empty in /transaction/payment post call, should return 400 BAD REQUEST")
+    @DisplayName("When 'previousTransaction' is empty in /transaction/transaction post call, should return 400 BAD REQUEST")
     public void shouldReturn400BadRequest_whenANonRequiredParameterIsEmpty() throws Exception {
 
         String transaction = TransactionJsonFixtures.emptyPreviousReference();
 
-        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transaction)
+        RequestBuilder request = MockMvcRequestBuilders.post(TRANSACTION_ENDPOINT, transaction)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transaction);
 
         mockMvc.perform(request).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -73,11 +73,11 @@ class TransactionIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("When the value of 'transactionReference' matches an already existing transaction in /transaction/payment post call, should return 400 BAD REQUEST")
+    @DisplayName("When the value of 'transactionReference' matches an already existing transaction in /transaction/transaction post call, should return 400 BAD REQUEST")
     public void shouldReturn400BadRequest_whenTryingToPerfomAnAlreadyExistingTransaction_() throws Exception {
         String transactionJson = TransactionJsonFixtures.alreadyExistingTransaction();
 
-        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transactionJson)
+        RequestBuilder request = MockMvcRequestBuilders.post(TRANSACTION_ENDPOINT, transactionJson)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transactionJson);
 
         mockMvc.perform(request).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -87,13 +87,13 @@ class TransactionIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("When the value of 'previousTransactionReference' does not match a previous transasction in /transaction/payment post call, should return 400 BAD REQUEST")
+    @DisplayName("When the value of 'previousTransactionReference' does not match a previous transasction in /transaction/transaction post call, should return 400 BAD REQUEST")
     public void shouldReturn400BadRequest_whenThePreviousTransactionReferenceDoesNotMatchAValidTransaction_()
             throws Exception {
 
         String transactionJson = TransactionJsonFixtures.notExistingPrevioiusTransaction();
 
-        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transactionJson)
+        RequestBuilder request = MockMvcRequestBuilders.post(TRANSACTION_ENDPOINT, transactionJson)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transactionJson);
 
         mockMvc.perform(request).andExpect(status().isBadRequest()).andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -103,17 +103,17 @@ class TransactionIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("When all fields pass validation in /transaction/payment post call, should return 201 CREATED and persist to the database")
+    @DisplayName("When all fields pass validation in /transaction/transaction post call, should return 201 CREATED and persist to the database")
     public void shouldPersitTheTransaction_whenAllFieldsPassValidation() throws Exception {
 
         String transactionJson = TransactionJsonFixtures.simple();
 
-        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transactionJson)
+        RequestBuilder request = MockMvcRequestBuilders.post(TRANSACTION_ENDPOINT, transactionJson)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transactionJson);
 
         mockMvc.perform(request).andExpect(status().isCreated());
 
-        Transaction persistedTransction = transactionRepo.findByTransactionReferenceAndSenderBankCode("000123321",
+        Transaction persistedTransction = transactionRepo.findByTransactionReferenceAndSenderEntityCode("000123321",
                 "01");
 
         assertThat(persistedTransction, notNullValue());
@@ -123,28 +123,28 @@ class TransactionIntegrationTest extends BaseIntegrationTest {
         assertThat(persistedTransction.getSenderLastName(), is("Jameson"));
         assertThat(persistedTransction.getSenderDocumentNumber(), is("246813579"));
         assertThat(persistedTransction.getSenderAccountNumber(), is("000654123"));
-        assertThat(persistedTransction.getSenderBankCode(), is("01"));
+        assertThat(persistedTransction.getSenderEntityCode(), is("01"));
         assertThat(persistedTransction.getReceiverFirstName(), is("John"));
         assertThat(persistedTransction.getReceiverLastName(), is("Johnsons"));
         assertThat(persistedTransction.getReceiverDocumentNumber(), is("WWW123456"));
         assertThat(persistedTransction.getReceiverAccountNumber(), is("123654123"));
-        assertThat(persistedTransction.getReceiverBankCode(), is("35"));
+        assertThat(persistedTransction.getReceiverEntityCode(), is("35"));
         assertThat(persistedTransction.getState(), is(StateEnum.INITIATED));
     }
 
     @Test
-    @DisplayName("When a transaction refers to a previous transaction via 'previousTransactionReference' and that transaction exists, when post calling /transaction/payment, should return 201 CREATED and persist to the database")
+    @DisplayName("When a transaction refers to a previous transaction via 'previousTransactionReference' and that transaction exists, when post calling /transaction/transaction, should return 201 CREATED and persist to the database")
     public void shouldPersitTheTransaction_whenTheTransactionReferencedByPreviousTransactionReferenceExists()
             throws Exception {
 
         String transactionJson = TransactionJsonFixtures.existingPreviousTransaction();
 
-        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT, transactionJson)
+        RequestBuilder request = MockMvcRequestBuilders.post(TRANSACTION_ENDPOINT, transactionJson)
                 .header("SIGNATURE", "123456").contentType(MediaType.APPLICATION_JSON).content(transactionJson);
 
         mockMvc.perform(request).andExpect(status().isCreated());
 
-        Transaction persistedTransction = transactionRepo.findByTransactionReferenceAndSenderBankCode("1111111111",
+        Transaction persistedTransction = transactionRepo.findByTransactionReferenceAndSenderEntityCode("1111111111",
                 "01");
 
         assertThat(persistedTransction, notNullValue());
@@ -154,58 +154,60 @@ class TransactionIntegrationTest extends BaseIntegrationTest {
         assertThat(persistedTransction.getSenderLastName(), is("Receiverson"));
         assertThat(persistedTransction.getSenderDocumentNumber(), is("WWW123456"));
         assertThat(persistedTransction.getSenderAccountNumber(), is("123654123"));
-        assertThat(persistedTransction.getSenderBankCode(), is("01"));
+        assertThat(persistedTransction.getSenderEntityCode(), is("01"));
         assertThat(persistedTransction.getReceiverFirstName(), is("Sender"));
         assertThat(persistedTransction.getReceiverLastName(), is("Senderson"));
         assertThat(persistedTransction.getReceiverDocumentNumber(), is("246813579"));
         assertThat(persistedTransction.getReceiverAccountNumber(), is("000654123"));
-        assertThat(persistedTransction.getReceiverBankCode(), is("35"));
+        assertThat(persistedTransction.getReceiverEntityCode(), is("35"));
     }
 
     @Test
-    @DisplayName("When a bank makes GET call to /transaction/payment?state=INITIATED?direction=INWARD, it should receive all pending payments towards it")
+    @DisplayName("When a entity makes GET call to /transaction/transaction?state=INITIATED?direction=INWARD, it should receive all pending transactions towards it")
     public void shouldReturnAListOfTransactions_whenFilterByInitiatedState() throws Exception {
 
-        // GIVEN there are transactions initiated by bank A towards bank B
+        // GIVEN there are transactions initiated by entity A towards entity B
 
-        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(PAYMENT_ENDPOINT).header("SIGNATURE", "123456")
-                .queryParam("state", "INITIATED").queryParam("direction", "INWARD")
+        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(TRANSACTION_ENDPOINT)
+                .header("SIGNATURE", "123456").queryParam("state", "INITIATED").queryParam("direction", "INWARD")
                 .contentType(MediaType.APPLICATION_JSON);
 
-        // WHEN bank B queries for the inward initiated payments
-        // THEN should return a list of inward pending payments
+        // WHEN entity B queries for the inward initiated transactions
+        // THEN should return a list of inward pending transactions
         mockMvc.perform(requestForInitiated).andExpect(status().isOk()).andExpect(jsonPath("$.transactions").isArray())
                 .andExpect(jsonPath("$.transactions", hasSize(1)))
                 .andExpect(jsonPath("$.transactions[0].transactionReference").value(is("0000000000")));
 
         // THEN should mark the transaction as informed in the DB
-        Transaction actualTransaction = transactionRepo.findByTransactionReferenceAndSenderBankCode("0000000000", "35");
+        Transaction actualTransaction = transactionRepo.findByTransactionReferenceAndSenderEntityCode("0000000000",
+                "35");
         assertThat(actualTransaction.getInformed(), is(1));
     }
 
     @Test
-    @DisplayName("When a bank makes GET call to /transaction/payment?status=CONFIRMED and there are isn´t any pending payment, it should receive an empty list")
+    @DisplayName("When a entity makes GET call to /transaction/transaction?status=CONFIRMED and there are isn´t any pending transaction, it should receive an empty list")
     public void shouldReturnAnEmptyList_whenFilterByStateAndThereIsNotAnyPaymentInThatState() throws Exception {
 
-        // GIVEN there are no transactions initiated by bank A towards bank B
-        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(PAYMENT_ENDPOINT).header("SIGNATURE", "123456")
-                .queryParam("state", "CONFIRMED").queryParam("direction", "OUTWARD")
+        // GIVEN there are no transactions initiated by entity A towards entity B
+        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(TRANSACTION_ENDPOINT)
+                .header("SIGNATURE", "123456").queryParam("state", "CONFIRMED").queryParam("direction", "OUTWARD")
                 .contentType(MediaType.APPLICATION_JSON);
 
-        // WHEN bank B queries for the initiated payments towards it
+        // WHEN entity B queries for the initiated transactions towards it
         // THEN should return an empty list
         mockMvc.perform(requestForInitiated).andExpect(status().isOk()).andExpect(jsonPath("$.transactions").isArray())
                 .andExpect(jsonPath("$.transactions", hasSize(0)));
     }
 
     @Test
-    @DisplayName("When a bank makes GET call to /transaction/payment?state=XX and XX is not a valid state, the bank should receive a 400 Bad Request")
+    @DisplayName("When a entity makes GET call to /transaction/transaction?state=XX and XX is not a valid state, the entity should receive a 400 Bad Request")
     public void shouldReturn400BadRequest_whenFilterByAnIvalidState() throws Exception {
 
-        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(PAYMENT_ENDPOINT).header("SIGNATURE", "123456")
-                .queryParam("state", "XX").queryParam("direction", "OUTWARD").contentType(MediaType.APPLICATION_JSON);
+        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(TRANSACTION_ENDPOINT)
+                .header("SIGNATURE", "123456").queryParam("state", "XX").queryParam("direction", "OUTWARD")
+                .contentType(MediaType.APPLICATION_JSON);
 
-        // WHEN bank B queries for an invalid state
+        // WHEN entity B queries for an invalid state
         // THEN should return a 400 Bad Request status
         mockMvc.perform(requestForInitiated).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -213,21 +215,23 @@ class TransactionIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
-    @DisplayName("When a bank makes GET call to /transaction/payment?direction=INWARD (without a state), all transactions in that direction should be returned")
+    @DisplayName("When a entity makes GET call to /transaction/transaction?direction=INWARD (without a state), all transactions in that direction should be returned")
     public void shouldReturnAListOfTransactions_whenFilterOnlyByDirection() throws Exception {
-        // GIVEN there are no transactions initiated by bank A towards bank B
+        // GIVEN there are no transactions initiated by entity A towards entity B
 
-        // WHEN bank B queries for transactions specifing only the direction, but not
+        // WHEN entity B queries for transactions specifing only the direction, but not
         // the state
-        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(PAYMENT_ENDPOINT).header("SIGNATURE", "123456")
-                .queryParam("direction", "INWARD").contentType(MediaType.APPLICATION_JSON);
-        // THEN should return a list of payments with that direction
+        RequestBuilder requestForInitiated = MockMvcRequestBuilders.get(TRANSACTION_ENDPOINT)
+                .header("SIGNATURE", "123456").queryParam("direction", "INWARD")
+                .contentType(MediaType.APPLICATION_JSON);
+        // THEN should return a list of transactions with that direction
         mockMvc.perform(requestForInitiated).andExpect(status().isOk()).andExpect(jsonPath("$.transactions").isArray())
                 .andExpect(jsonPath("$.transactions", hasSize(2)))
                 .andExpect(jsonPath("$.transactions[0].transactionReference").value(is("0000000000")));
 
         // THEN should mark the transaction as informed in the DB
-        Transaction actualTransaction = transactionRepo.findByTransactionReferenceAndSenderBankCode("0000000000", "35");
+        Transaction actualTransaction = transactionRepo.findByTransactionReferenceAndSenderEntityCode("0000000000",
+                "35");
         assertThat(actualTransaction.getInformed(), is(1));
     }
 

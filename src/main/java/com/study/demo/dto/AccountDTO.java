@@ -26,5 +26,5 @@ public class AccountDTO {
     String accountNumber;
 
     @NotBlank
-    String bankCode;
+    String entityCode;
 }

@@ -11,13 +11,13 @@ import org.springframework.data.repository.CrudRepository;
 
 @Transactional
 public interface TransactionRepository extends CrudRepository<Transaction, Long> {
-    public Transaction findByTransactionReferenceAndSenderBankCode(String transactionReference, String bankCode);
+    public Transaction findByTransactionReferenceAndSenderEntityCode(String transactionReference, String entityCode);
 
-    public List<Transaction> findByReceiverBankCode(String bankCode);
-    
-    public List<Transaction> findBySenderBankCode(String bankCode);
+    public List<Transaction> findByReceiverEntityCode(String entityCode);
 
-    public List<Transaction> findByReceiverBankCodeAndState(String bankCode, StateEnum state);
-    
-    public List<Transaction> findBySenderBankCodeAndState(String bankCode, StateEnum state);
+    public List<Transaction> findBySenderEntityCode(String entityCode);
+
+    public List<Transaction> findByReceiverEntityCodeAndState(String entityCode, StateEnum state);
+
+    public List<Transaction> findBySenderEntityCodeAndState(String entityCode, StateEnum state);
 }

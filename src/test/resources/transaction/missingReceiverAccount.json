@@ -1,11 +1,11 @@
-    {
-        "amount": 50,
-        "transactionReference": "000123321",
-        "senderAccount": {
-            "ownerFirstName": "James",
-            "ownerLastName": "Jameson",
-            "ownerDocumentNumber": "246813579",
-            "accountNumber": "000654123",
-            "bankCode": "01"
-        }
-    }
+{
+  "amount": 50,
+  "transactionReference": "000123321",
+  "senderAccount": {
+    "ownerFirstName": "James",
+    "ownerLastName": "Jameson",
+    "ownerDocumentNumber": "246813579",
+    "accountNumber": "000654123",
+    "entityCode": "01"
+  }
+}

@@ -1,17 +1,17 @@
-    {
-        "transactionReference": "000123321",
-        "senderAccount": {
-            "ownerFirstName": "James",
-            "ownerLastName": "Jameson",
-            "ownerDocumentNumber": "246813579",
-            "accountNumber": "000654123",
-            "bankCode": "01"
-        },
-        "receiverAccount": {
-            "ownerFirstName": "John",
-            "ownerLastName": "Johnsons",
-            "ownerDocumentNumber": "WWW123456",
-            "accountNumber": "123654123",
-            "bankCode": "35"
-        }
-    }
+{
+  "transactionReference": "000123321",
+  "senderAccount": {
+    "ownerFirstName": "James",
+    "ownerLastName": "Jameson",
+    "ownerDocumentNumber": "246813579",
+    "accountNumber": "000654123",
+    "entityCode": "01"
+  },
+  "receiverAccount": {
+    "ownerFirstName": "John",
+    "ownerLastName": "Johnsons",
+    "ownerDocumentNumber": "WWW123456",
+    "accountNumber": "123654123",
+    "entityCode": "35"
+  }
+}

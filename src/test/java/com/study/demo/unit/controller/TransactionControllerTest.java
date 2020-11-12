@@ -14,7 +14,7 @@ import com.study.demo.dto.TransactionQueryResponses;
 import com.study.demo.exception.AmountGreaterThanMaximumException;
 import com.study.demo.exception.AmountSmallerThanMinimumException;
 import com.study.demo.exception.IpAdressNotKnownException;
-import com.study.demo.exception.SameBankException;
+import com.study.demo.exception.SameEntityException;
 import com.study.demo.exception.SenderNotValidException;
 import com.study.demo.service.SecurityService;
 import com.study.demo.service.TransactionService;
@@ -51,16 +51,17 @@ public class TransactionControllerTest {
     @Mock
     private TransactionDTO mockTransaction;
 
-    private final static String PAYMENT_ENDPOINT = "/transaction/payment";
+    private final static String TRANSACTION_ENDPOINT = "/transaction/transaction";
 
     @Test
-    public void shouldReturn401_whenTheSenderBankIPdiffersFromTheBankCode() throws Exception {
+    public void shouldReturn401_whenTheSenderEntityIPdiffersFromTheEntityCode() throws Exception {
 
-        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
-                .header("SIGNATURE", "dummy").content(TransactionJsonFixtures.simple());
+        RequestBuilder request = MockMvcRequestBuilders.post(TRANSACTION_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).header("SIGNATURE", "dummy")
+                .content(TransactionJsonFixtures.simple());
 
         doThrow(new SenderNotValidException("127.0.0.1", "01")).when(securityService)
-                .validateSenderBankAuthenticity("127.0.0.1", "01");
+                .validateSenderEntityAuthenticity("127.0.0.1", "01");
 
         mvc.perform(request).andExpect(status().isUnauthorized()).andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.status").value("UNAUTHORIZED"))
@@ -69,11 +70,12 @@ public class TransactionControllerTest {
     }
 
     @Test
-    public void shouldReturn400_whenSenderAndReceiverPertainToSameBank() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
-                .header("SIGNATURE", "dummy").content(TransactionJsonFixtures.sameBankTransaction());
+    public void shouldReturn400_whenSenderAndReceiverPertainToSameEntity() throws Exception {
+        RequestBuilder request = MockMvcRequestBuilders.post(TRANSACTION_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).header("SIGNATURE", "dummy")
+                .content(TransactionJsonFixtures.sameEntityTransaction());
 
-        doThrow(new SameBankException("01")).when(transactionService).transact(any());
+        doThrow(new SameEntityException("01")).when(transactionService).transact(any());
 
         mvc.perform(request).andExpect(status().isBadRequest()).andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.status").value("BAD_REQUEST"))
@@ -82,8 +84,9 @@ public class TransactionControllerTest {
 
     @Test
     public void shouldReturn400_whenAmountIsHigherThanTheMaximumAllowed() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
-                .header("SIGNATURE", "dummy").content(TransactionJsonFixtures.simple());
+        RequestBuilder request = MockMvcRequestBuilders.post(TRANSACTION_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).header("SIGNATURE", "dummy")
+                .content(TransactionJsonFixtures.simple());
 
         doThrow(new AmountGreaterThanMaximumException(50L, 500L)).when(transactionService).transact(any());
 
@@ -95,8 +98,9 @@ public class TransactionControllerTest {
 
     @Test
     public void shouldReturn400_whenAmountIsLowerThanTheMinimumAllowed() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.post(PAYMENT_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
-                .header("SIGNATURE", "dummy").content(TransactionJsonFixtures.simple());
+        RequestBuilder request = MockMvcRequestBuilders.post(TRANSACTION_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).header("SIGNATURE", "dummy")
+                .content(TransactionJsonFixtures.simple());
 
         doThrow(new AmountSmallerThanMinimumException(0L, 0L)).when(transactionService).transact(any());
 
@@ -108,14 +112,14 @@ public class TransactionControllerTest {
 
     @Test
     public void shouldReturnListOfQueryResponses_whenQueriedWithoutStateAndDirection() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get(PAYMENT_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
-                .header("SIGNATURE", "dummy");
+        RequestBuilder request = MockMvcRequestBuilders.get(TRANSACTION_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).header("SIGNATURE", "dummy");
 
         TransactionQueryResponses queryResponses = TransactionQueryResponseFixtures.simpleQueryResponses();
 
-        when(securityService.retrieveBankCodeByBankIP(any())).thenReturn("35");
+        when(securityService.retrieveEntityCodeByEntityIP(any())).thenReturn("35");
 
-        when(transactionService.retrieveTransactionsByStateAndDiretionAndBankCode(null, null, "35"))
+        when(transactionService.retrieveTransactionsByStateAndDiretionAndEntityCode(null, null, "35"))
                 .thenReturn(queryResponses);
 
         mvc.perform(request).andExpect(status().isOk()).andExpect(content().contentType("application/json"))
@@ -125,14 +129,15 @@ public class TransactionControllerTest {
 
     @Test
     public void shouldReturnListOfQueryResponses_whenQueriedByStateAndDirection() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get(PAYMENT_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
-                .param("direction", "INWARD").param("state", "INITIATED").header("SIGNATURE", "dummy");
+        RequestBuilder request = MockMvcRequestBuilders.get(TRANSACTION_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).param("direction", "INWARD").param("state", "INITIATED")
+                .header("SIGNATURE", "dummy");
 
         TransactionQueryResponses queryResponses = TransactionQueryResponseFixtures.simpleQueryResponses();
 
-        when(securityService.retrieveBankCodeByBankIP(any())).thenReturn("35");
+        when(securityService.retrieveEntityCodeByEntityIP(any())).thenReturn("35");
 
-        when(transactionService.retrieveTransactionsByStateAndDiretionAndBankCode(StateEnum.INITIATED,
+        when(transactionService.retrieveTransactionsByStateAndDiretionAndEntityCode(StateEnum.INITIATED,
                 DirectionEnum.INWARD, "35")).thenReturn(queryResponses);
 
         mvc.perform(request).andExpect(status().isOk()).andExpect(content().contentType("application/json"))
@@ -142,14 +147,15 @@ public class TransactionControllerTest {
 
     @Test
     public void shouldReturnListOfQueryResponses_whenQueriedByEmptyStateAndEmptyDirection() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get(PAYMENT_ENDPOINT).contentType(MediaType.APPLICATION_JSON)
-                .param("direction", "").param("state", "").header("SIGNATURE", "dummy");
+        RequestBuilder request = MockMvcRequestBuilders.get(TRANSACTION_ENDPOINT)
+                .contentType(MediaType.APPLICATION_JSON).param("direction", "").param("state", "")
+                .header("SIGNATURE", "dummy");
 
         TransactionQueryResponses queryResponses = TransactionQueryResponseFixtures.simpleQueryResponses();
 
-        when(securityService.retrieveBankCodeByBankIP(any())).thenReturn("35");
+        when(securityService.retrieveEntityCodeByEntityIP(any())).thenReturn("35");
 
-        when(transactionService.retrieveTransactionsByStateAndDiretionAndBankCode(null, null, "35"))
+        when(transactionService.retrieveTransactionsByStateAndDiretionAndEntityCode(null, null, "35"))
                 .thenReturn(queryResponses);
 
         mvc.perform(request).andExpect(status().isOk()).andExpect(content().contentType("application/json"))
@@ -159,11 +165,10 @@ public class TransactionControllerTest {
 
     @Test
     public void shouldReturn401_whenTheCallerIpIsNotKnown() throws Exception {
-        RequestBuilder request = MockMvcRequestBuilders.get(
-                PAYMENT_ENDPOINT)
+        RequestBuilder request = MockMvcRequestBuilders.get(TRANSACTION_ENDPOINT)
                 .contentType(MediaType.APPLICATION_JSON).header("SIGNATURE", "dummy");
 
-        doThrow(new IpAdressNotKnownException()).when(securityService).retrieveBankCodeByBankIP(any());
+        doThrow(new IpAdressNotKnownException()).when(securityService).retrieveEntityCodeByEntityIP(any());
 
         mvc.perform(request).andExpect(status().isUnauthorized()).andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.status").value("UNAUTHORIZED"));

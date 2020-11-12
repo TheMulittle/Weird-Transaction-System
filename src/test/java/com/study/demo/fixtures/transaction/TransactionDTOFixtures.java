@@ -43,14 +43,14 @@ public class TransactionDTOFixtures {
                 .senderAccount(AccountDTOFixtures.simpleSenderAccount()).build();
     }
 
-    public static TransactionDTO sameBankTransasction() {
+    public static TransactionDTO sameEntityTransasction() {
 
         return TransactionDTO.builder().amount(50L).transactionReference("000123321")
                 .receiverAccount(AccountDTOFixtures.simpleSenderAccount())
                 .senderAccount(AccountDTOFixtures.simpleSenderAccount()).build();
     }
 
-    public static TransactionDTO transactionWhoseBankCodeDiffersFromBankCodeOfSenderAccount() {
+    public static TransactionDTO transactionWhoseEntityCodeDiffersFromEntityCodeOfSenderAccount() {
 
         return TransactionDTO.builder().amount(50L).transactionReference("000123321")
                 .receiverAccount(AccountDTOFixtures.simpleReceiverAccount())

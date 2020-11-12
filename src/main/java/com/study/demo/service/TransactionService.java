@@ -11,7 +11,7 @@ import com.study.demo.entity.Transaction;
 import com.study.demo.exception.AmountGreaterThanMaximumException;
 import com.study.demo.exception.AmountSmallerThanMinimumException;
 import com.study.demo.exception.DuplicatedTransactionException;
-import com.study.demo.exception.SameBankException;
+import com.study.demo.exception.SameEntityException;
 import com.study.demo.exception.TransactionNotFoundException;
 import com.study.demo.model.DirectionEnum;
 import com.study.demo.model.StateEnum;
@@ -59,12 +59,12 @@ public class TransactionService {
     }
 
     private void validateTransactionIsNotDuplicated(TransactionDTO transaction) {
-        Transaction searchResult = transactionRepository.findByTransactionReferenceAndSenderBankCode(
-                transaction.getTransactionReference(), transaction.getSenderAccount().getBankCode());
+        Transaction searchResult = transactionRepository.findByTransactionReferenceAndSenderEntityCode(
+                transaction.getTransactionReference(), transaction.getSenderAccount().getEntityCode());
 
         if (searchResult != null) {
             throw new DuplicatedTransactionException(transaction.getTransactionReference(),
-                    transaction.getSenderAccount().getBankCode());
+                    transaction.getSenderAccount().getEntityCode());
         }
     }
 
@@ -72,47 +72,49 @@ public class TransactionService {
 
         if (transaction.getPreviousTransactionReference() != null
                 && !transaction.getPreviousTransactionReference().isEmpty()) {
-            Transaction searchResult = transactionRepository.findByTransactionReferenceAndSenderBankCode(
-                    transaction.getPreviousTransactionReference(), transaction.getReceiverAccount().getBankCode());
+            Transaction searchResult = transactionRepository.findByTransactionReferenceAndSenderEntityCode(
+                    transaction.getPreviousTransactionReference(), transaction.getReceiverAccount().getEntityCode());
 
             if (searchResult == null) {
                 throw new TransactionNotFoundException(transaction.getPreviousTransactionReference(),
-                        transaction.getReceiverAccount().getBankCode());
+                        transaction.getReceiverAccount().getEntityCode());
             }
         }
     }
 
     private void validateCreditorAndDebtor(TransactionDTO transaction) {
-        if (transaction.getSenderAccount().getBankCode().equals(transaction.getReceiverAccount().getBankCode())) {
-            throw new SameBankException(transaction.getReceiverAccount().getBankCode());
+        if (transaction.getSenderAccount().getEntityCode().equals(transaction.getReceiverAccount().getEntityCode())) {
+            throw new SameEntityException(transaction.getReceiverAccount().getEntityCode());
         }
     }
 
-	public TransactionQueryResponses retrieveTransactionsByStateAndDiretionAndBankCode(StateEnum state, DirectionEnum direction, String bankCode) {
+    public TransactionQueryResponses retrieveTransactionsByStateAndDiretionAndEntityCode(StateEnum state,
+            DirectionEnum direction, String entityCode) {
         List<Transaction> foundTransactions = new ArrayList<Transaction>();
 
-        if(state == null && direction == null) {
-            foundTransactions = transactionRepository.findByReceiverBankCode(bankCode);
-            foundTransactions.addAll(transactionRepository.findBySenderBankCode(bankCode));
+        if (state == null && direction == null) {
+            foundTransactions = transactionRepository.findByReceiverEntityCode(entityCode);
+            foundTransactions.addAll(transactionRepository.findBySenderEntityCode(entityCode));
         } else if (direction == null) {
-            foundTransactions = transactionRepository.findByReceiverBankCodeAndState(bankCode, state);
-            foundTransactions.addAll(transactionRepository.findBySenderBankCodeAndState(bankCode, state));
+            foundTransactions = transactionRepository.findByReceiverEntityCodeAndState(entityCode, state);
+            foundTransactions.addAll(transactionRepository.findBySenderEntityCodeAndState(entityCode, state));
         } else if (state == null && direction == DirectionEnum.INWARD) {
-            foundTransactions = transactionRepository.findByReceiverBankCode(bankCode);
-        } else if(state == null && direction == DirectionEnum.OUTWARD) {
-            foundTransactions = transactionRepository.findBySenderBankCode(bankCode);
+            foundTransactions = transactionRepository.findByReceiverEntityCode(entityCode);
+        } else if (state == null && direction == DirectionEnum.OUTWARD) {
+            foundTransactions = transactionRepository.findBySenderEntityCode(entityCode);
         } else if (direction == DirectionEnum.INWARD) {
-            foundTransactions = transactionRepository.findByReceiverBankCodeAndState(bankCode, state);    
+            foundTransactions = transactionRepository.findByReceiverEntityCodeAndState(entityCode, state);
         } else if (direction == DirectionEnum.OUTWARD) {
-            foundTransactions = transactionRepository.findBySenderBankCodeAndState(bankCode, state);
+            foundTransactions = transactionRepository.findBySenderEntityCodeAndState(entityCode, state);
         }
 
-        foundTransactions.stream().filter(transaction -> transaction.getReceiverBankCode().equals(bankCode)).forEach(transaction -> transaction.setInformed(1));
+        foundTransactions.stream().filter(transaction -> transaction.getReceiverEntityCode().equals(entityCode))
+                .forEach(transaction -> transaction.setInformed(1));
         transactionRepository.saveAll(foundTransactions);
 
         TransactionQueryResponse[] transactions = modelMapper.map(foundTransactions, TransactionQueryResponse[].class);
 
         return new TransactionQueryResponses(Arrays.asList(transactions));
-	}
+    }
 
 }

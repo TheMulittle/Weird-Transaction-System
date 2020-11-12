@@ -5,7 +5,7 @@ import com.study.demo.exception.AmountGreaterThanMaximumException;
 import com.study.demo.exception.AmountSmallerThanMinimumException;
 import com.study.demo.exception.DuplicatedTransactionException;
 import com.study.demo.exception.IpAdressNotKnownException;
-import com.study.demo.exception.SameBankException;
+import com.study.demo.exception.SameEntityException;
 import com.study.demo.exception.SenderNotValidException;
 import com.study.demo.exception.TransactionNotFoundException;
 
@@ -36,10 +36,10 @@ public class ErrorReceptionHandler extends ResponseEntityExceptionHandler {
                 new BaseErrorResponseDTO(HttpStatus.BAD_REQUEST, "Duplicated transaction", ex.getMessage()));
     }
 
-    @ExceptionHandler(SameBankException.class)
-    protected ResponseEntity<?> handleSameBankConflict(SameBankException ex, WebRequest request) {
+    @ExceptionHandler(SameEntityException.class)
+    protected ResponseEntity<?> handleSameEntityConflict(SameEntityException ex, WebRequest request) {
         return buildResponseEntity(new BaseErrorResponseDTO(HttpStatus.BAD_REQUEST,
-                "Sender and receiver pertain to the same bank", ex.getMessage()));
+                "Sender and receiver pertain to the same entity", ex.getMessage()));
     }
 
     @ExceptionHandler({ AmountGreaterThanMaximumException.class, AmountSmallerThanMinimumException.class })
@@ -69,9 +69,9 @@ public class ErrorReceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleTypeMismatch(TypeMismatchException ex, HttpHeaders headers,
             HttpStatus status, WebRequest request) {
 
-        String message = "The value {" + ex.getValue() + "} is not valid. Check the query parameters / headers / path variables to make sure you pass valid values";
-        return buildResponseEntity(new BaseErrorResponseDTO(HttpStatus.BAD_REQUEST, "Value not valid",
-                message));
+        String message = "The value {" + ex.getValue()
+                + "} is not valid. Check the query parameters / headers / path variables to make sure you pass valid values";
+        return buildResponseEntity(new BaseErrorResponseDTO(HttpStatus.BAD_REQUEST, "Value not valid", message));
     }
 
     private ResponseEntity<Object> buildResponseEntity(BaseErrorResponseDTO error) {
