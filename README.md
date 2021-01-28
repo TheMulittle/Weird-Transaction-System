@@ -51,3 +51,12 @@ At some point latter:
 
 - Sender Entity performs a GET call filtering for CONFIRMED transactions with OUTWARD direction (transactions made by Sender Entity that were confirmed by their counterpart)
 - WTS returns all transactions matching the criteria. It is important to notice that after a transaction is informed to an Entity it will be marked as INFORMED in the system and won´t show in subsequent calls for CONFIRMED / OUTWARD transactions unless explicitly required for
+
+
+## TODO
+
+- Dockerize database
+- Dockerize application
+- Add this to github pipeline
+- Create an AWS demo environment
+- Document build procces (how to build with gradle, how to deploy it locally, how to deploy it to AWS)
