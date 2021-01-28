@@ -57,6 +57,7 @@ At some point latter:
 
 - Dockerize database
 - Dockerize application as a whole
+- Refactor integration testing to be more smart, currently it seeds the database before the test and it is rather confusing how to use those users. How's that done in open souce repositories?
 - Use Wiremock for mocking external services
 - Add this to github pipeline
 - Create an AWS demo environment
