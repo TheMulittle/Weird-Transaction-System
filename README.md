@@ -56,7 +56,8 @@ At some point latter:
 ## TODO
 
 - Dockerize database
-- Dockerize application
+- Dockerize application as a whole
+- Use Wiremock for mocking external services
 - Add this to github pipeline
 - Create an AWS demo environment
 - Document build procces (how to build with gradle, how to deploy it locally, how to deploy it to AWS)
